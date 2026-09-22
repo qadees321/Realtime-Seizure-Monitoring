@@ -8,15 +8,6 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-# Hide Streamlit main menu, header, and footer
-st.markdown("""
-    <style>
-    #MainMenu {visibility: hidden;}
-    header {visibility: hidden;}
-    footer {visibility: hidden;}
-    </style>
-    """, unsafe_allow_html=True)
-
 st.set_page_config(
     page_title="Realtime Seizure Monitoring",
     page_icon="🏥",
@@ -29,31 +20,32 @@ OUT = ROOT / "outputs"
 MODEL_PATH = OUT / "best_model.pkl"
 SCALER_PATH = OUT / "scaler.pkl"
 META_PATH = OUT / "metadata.joblib"
+BUNDLE_PATH = OUT / "best_model_bundle.joblib"
 
 st.markdown(
     """
 <style>
-:root{--bg:#041018;--panel:#081923;--panel2:#0b202c;--line:#193746;--text:#eff8fb;--muted:#7891a1;--cyan:#5de7e0;--green:#56df9b;--red:#ff5d73;--amber:#ffc45c;--blue:#70a9ff}
-.stApp{background:radial-gradient(circle at 78% -10%,rgba(67,173,255,.13),transparent 31%),radial-gradient(circle at 8% 0%,rgba(54,231,214,.09),transparent 27%),var(--bg);color:var(--text)}
-.block-container{max-width:1540px;padding:1.1rem 1.7rem 3rem}
-section[data-testid="stSidebar"]{background:#05131d;border-right:1px solid #16303e}
-.hero{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:23px 27px;border:1px solid #204150;border-radius:23px;background:linear-gradient(135deg,#0a202e,#07131c);box-shadow:0 20px 60px rgba(0,0,0,.22);margin-bottom:30px}
-.hero h1{margin:0;font-size:2.5rem;letter-spacing:-.05em}.hero p{margin:.4rem 0 0;color:#8ea7b7}.kicker{font-size:.7rem;letter-spacing:.15em;font-weight:850;color:var(--cyan)}
-.live-pill{display:flex;align-items:center;gap:9px;padding:10px 14px;border-radius:999px;border:1px solid #254b55;background:#09242a;font-weight:850;font-size:.8rem;white-space:nowrap}.live-dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 0 rgba(86,223,155,.55);animation:pulse 1.45s infinite}
-@keyframes pulse{70%{box-shadow:0 0 0 9px rgba(86,223,155,0)}100%{box-shadow:0 0 0 0 rgba(86,223,155,0)}}
-.card{background:linear-gradient(180deg,rgba(12,31,43,.96),rgba(7,20,29,.96));border:1px solid var(--line);border-radius:17px;padding:16px 17px;margin-bottom:25px !important}.metric{font-size:1.7rem;font-weight:850;line-height:1.1}.label{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}.sub{font-size:.76rem;color:#9bb0bd;margin-top:6px}.small-muted{color:var(--muted);font-size:.74rem}
-.alert-banner,.safe-banner{border-radius:17px;padding:14px 18px;margin:12px 0;border:1px solid}.alert-banner{border-color:rgba(255,93,115,.55);background:rgba(255,93,115,.10);animation:alertFlash 1s ease-in-out infinite alternate}.safe-banner{border-color:rgba(86,223,155,.3);background:rgba(86,223,155,.065)}
-@keyframes alertFlash{from{box-shadow:0 0 0 rgba(255,93,115,0)}to{box-shadow:0 0 32px rgba(255,93,115,.18)}}
-.section-title{font-size:1rem;font-weight:850;margin:4px 0 12px}.section-title span{color:var(--muted);font-size:.78rem;font-weight:500;margin-left:7px}
-.session-tag{display:inline-block;padding:5px 9px;border-radius:8px;background:#102a38;color:#a8c0cf;font-size:.7rem;margin-right:5px;border:1px solid #1b4050}
-.top-telemetry{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px;margin:24px 0}.telemetry{background:rgba(7,23,32,.82);border:1px solid #173746;border-radius:14px;padding:16px 18px;position:relative;overflow:hidden}.telemetry:after{content:"";position:absolute;top:0;bottom:0;width:80px;background:linear-gradient(90deg,transparent,rgba(93,231,224,.09),transparent);animation:sweep 3s linear infinite}.telemetry .k{font-size:.61rem;color:#6e8999;text-transform:uppercase;letter-spacing:.11em}.telemetry .v{font-size:1.02rem;font-weight:850;margin-top:2px}.telemetry .s{font-size:.67rem;color:#91a9b8;margin-top:2px}.live-text{color:var(--green)}.standby-text{color:#9aabb5}
-@keyframes sweep{from{left:-100px}to{left:100%}}
-.monitor-shell{border:1px solid #183b4a;border-radius:20px;background:linear-gradient(145deg,#06131d,#081c27);padding:13px;box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 20px 60px rgba(0,0,0,.17);margin-bottom:30px !important}
-.monitor-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px !important}.monitor-head .title{font-size:1.1rem;font-weight:850}.monitor-head .meta{font-size:.78rem;color:#718b9c;margin-top:2px}
-.ecg-wrap{margin-top:10px !important;margin-left: -13px !important;margin-right: -13px !important;width: calc(100% + 26px) !important;background:#05131b;border:1px solid #173746;border-radius:13px;overflow:hidden;position:relative}.ecg-label{position:absolute;left:10px;top:8px;font-size:.6rem;letter-spacing:.12em;color:#6f8999;z-index:2}.ecg-svg{display:block;width:100% !important;height:88px}.ecg-path{fill:none;stroke:var(--green);stroke-width:2.3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:900;stroke-dashoffset:900;animation:draw 2.15s linear infinite}.scan-beam{animation:beam 1.8s linear infinite}@keyframes draw{to{stroke-dashoffset:0}}@keyframes beam{from{transform:translateX(-8px)}to{transform:translateX(1000px)}}
-.pulse-line{height:3px;border-radius:4px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);background-size:220% 100%;animation:scan 1.25s linear infinite;opacity:.8}@keyframes scan{to{background-position:-220% 0}}
-.alert-dot,.safe-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}.alert-dot{background:var(--red);box-shadow:0 0 0 0 rgba(255,93,115,.5);animation:pulse 1s infinite}.safe-dot{background:var(--green);box-shadow:0 0 0 0 rgba(86,223,155,.5);animation:pulse 1.7s infinite}
-.stButton>button{border-radius:11px;border:1px solid #274a5a;background:#0c2533;color:#edf8fa;font-weight:800;min-height:43px}.stButton>button:hover{border-color:var(--cyan);background:#103342}
+:root{--bg:#070b16;--panel:#0d1322;--panel2:#111a2d;--line:#24314b;--text:#f5f7ff;--muted:#8d9ab2;--violet:#8b7cff;--cyan:#4fd7ff;--mint:#4ee1b5;--rose:#ff6685;--amber:#ffc766;--blue:#6ea8ff}
+.stApp{background:radial-gradient(circle at 82% -8%,rgba(139,124,255,.20),transparent 32%),radial-gradient(circle at 12% 0%,rgba(79,215,255,.12),transparent 28%),linear-gradient(135deg,#070b16 0%,#090e1b 55%,#070b15 100%);color:var(--text)}
+.block-container{max-width:1540px;padding:1.15rem 1.7rem 3rem}
+section[data-testid="stSidebar"]{background:linear-gradient(180deg,#0a0f1d,#080c16);border-right:1px solid #1d2940}
+.hero{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:26px 29px;border:1px solid #293552;border-radius:24px;background:linear-gradient(135deg,rgba(17,25,44,.97),rgba(10,14,27,.98));box-shadow:0 22px 70px rgba(0,0,0,.30)}
+.hero h1{margin:0;font-size:2.65rem;letter-spacing:-.055em;background:linear-gradient(90deg,#fff,var(--cyan),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}.hero p{margin:.45rem 0 0;color:#9aa8bf}.kicker{font-size:.7rem;letter-spacing:.16em;font-weight:850;color:var(--cyan)}
+.live-pill{display:flex;align-items:center;gap:9px;padding:10px 15px;border-radius:999px;border:1px solid #344264;background:rgba(21,31,53,.8);font-weight:850;font-size:.8rem;white-space:nowrap}.live-dot{width:9px;height:9px;border-radius:50%;background:var(--mint);box-shadow:0 0 0 0 rgba(78,225,181,.55);animation:pulse 1.45s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 9px rgba(78,225,181,0)}100%{box-shadow:0 0 0 0 rgba(78,225,181,0)}}
+.card{background:linear-gradient(145deg,rgba(17,25,43,.96),rgba(10,15,27,.98));border:1px solid var(--line);border-radius:18px;padding:16px 17px;box-shadow:0 10px 35px rgba(0,0,0,.12)}
+.metric{font-size:1.7rem;font-weight:850;line-height:1.1}.label{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}.sub{font-size:.76rem;color:#9ba9bd;margin-top:6px}.small-muted{color:var(--muted);font-size:.74rem}
+.alert-banner,.safe-banner{border-radius:18px;padding:14px 18px;margin:12px 0;border:1px solid}.alert-banner{border-color:rgba(255,102,133,.58);background:linear-gradient(90deg,rgba(255,102,133,.13),rgba(139,124,255,.06));animation:alertFlash 1s ease-in-out infinite alternate}.safe-banner{border-color:rgba(78,225,181,.32);background:linear-gradient(90deg,rgba(78,225,181,.075),rgba(79,215,255,.035))}
+@keyframes alertFlash{from{box-shadow:0 0 0 rgba(255,102,133,0)}to{box-shadow:0 0 34px rgba(255,102,133,.17)}}
+.section-title{font-size:1rem;font-weight:850;margin:4px 0 12px}.section-title span{color:var(--muted);font-size:.78rem;font-weight:500;margin-left:7px}.session-tag{display:inline-block;padding:5px 9px;border-radius:9px;background:#151f36;color:#b9c5dc;font-size:.7rem;margin-right:5px;border:1px solid #2b3958}
+.top-telemetry{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0}.telemetry{background:rgba(12,18,32,.84);border:1px solid #202d46;border-radius:15px;padding:10px 13px;position:relative;overflow:hidden}.telemetry:after{content:"";position:absolute;top:0;bottom:0;width:80px;background:linear-gradient(90deg,transparent,rgba(139,124,255,.10),transparent);animation:sweep 3s linear infinite}.telemetry .k{font-size:.61rem;color:#7786a0;text-transform:uppercase;letter-spacing:.11em}.telemetry .v{font-size:1.02rem;font-weight:850;margin-top:2px}.telemetry .s{font-size:.67rem;color:#93a0b6;margin-top:2px}.live-text{color:var(--mint)}.standby-text{color:#9aa7ba}@keyframes sweep{from{left:-100px}to{left:100%}}
+.monitor-shell{border:1px solid #293753;border-radius:21px;background:linear-gradient(145deg,#0a101d,#0d1525);padding:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 20px 60px rgba(0,0,0,.20)}
+.monitor-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:9px}.monitor-head .title{font-size:1.05rem;font-weight:850}.monitor-head .meta{font-size:.71rem;color:#7786a0;margin-top:2px}
+.pulse-line{height:3px;border-radius:4px;background:linear-gradient(90deg,transparent,var(--cyan),var(--violet),transparent);background-size:220% 100%;animation:scan 1.25s linear infinite;opacity:.85}@keyframes scan{to{background-position:-220% 0}}
+.alert-dot,.safe-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}.alert-dot{background:var(--rose);box-shadow:0 0 0 0 rgba(255,102,133,.5);animation:pulse 1s infinite}.safe-dot{background:var(--mint);box-shadow:0 0 0 0 rgba(78,225,181,.5);animation:pulse 1.7s infinite}
+.stButton>button{border-radius:12px;border:1px solid #2b3a59;background:linear-gradient(180deg,#141e34,#101829);color:#f4f7ff;font-weight:800;min-height:43px;transition:.18s}.stButton>button:hover{border-color:var(--cyan);background:linear-gradient(180deg,#182640,#131d32);transform:translateY(-1px)}
+.stDownloadButton>button{border-radius:12px!important;border:1px solid #2b3a59!important;background:#111a2d!important;color:#f4f7ff!important}
+div[data-baseweb="select"]>div, .stTextInput input, .stTextArea textarea{background:#0d1526!important;border-color:#293753!important;color:#f5f7ff!important;border-radius:11px!important}
 [data-testid="stMetric"]{background:transparent}footer{visibility:hidden}
 @media(max-width:900px){.hero h1{font-size:1.8rem}.top-telemetry{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
@@ -64,15 +56,16 @@ section[data-testid="stSidebar"]{background:#05131d;border-right:1px solid #1630
 
 @st.cache_resource(show_spinner=False)
 def load_artifacts():
-    if not MODEL_PATH.exists():
-        return None, None, {}
-    model = joblib.load(MODEL_PATH)
-    scaler = joblib.load(SCALER_PATH) if SCALER_PATH.exists() else None
     meta = joblib.load(META_PATH) if META_PATH.exists() else {}
-    return model, scaler, meta
+    if BUNDLE_PATH.exists():
+        bundle = joblib.load(BUNDLE_PATH)
+        return bundle.get("model"), bundle.get("scaler"), meta, float(bundle["threshold"]), bundle.get("model_name", "Unknown")
+    if MODEL_PATH.exists() and SCALER_PATH.exists() and isinstance(meta, dict) and "alert_threshold" in meta:
+        return joblib.load(MODEL_PATH), joblib.load(SCALER_PATH), meta, float(meta["alert_threshold"]), meta.get("best_name", "Unknown")
+    return None, None, meta, None, None
 
 
-model, scaler, meta = load_artifacts()
+model, scaler, meta, trained_threshold, trained_model_name = load_artifacts()
 
 
 def init_state():
@@ -92,7 +85,7 @@ def init_state():
         "patient_id": "PT-001",
         "patient_name": "Research Session",
         "session_note": "EEG screening session",
-        "threshold": 0.50,
+        "threshold": None,
         "source": "Demo streaming",
         "source_detail": "Synthetic demonstration stream",
     }
@@ -116,8 +109,8 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-if model is None or scaler is None:
-    st.error("Model artifacts are missing. Add outputs/best_model.pkl and outputs/scaler.pkl to the deployment repository.")
+if model is None or scaler is None or trained_threshold is None:
+    st.error("Deployment artifacts are incomplete. Run the updated notebook export so the learned threshold is stored in outputs/best_model_bundle.joblib.")
     st.stop()
 
 
@@ -127,7 +120,7 @@ st.sidebar.caption("Realtime Seizure Monitoring")
 patient_id = st.sidebar.text_input("Patient / Case ID", value=st.session_state.patient_id)
 patient_name = st.sidebar.text_input("Session label", value=st.session_state.patient_name)
 session_note = st.sidebar.text_area("Clinical / research note", value=st.session_state.session_note, height=80)
-threshold = st.sidebar.slider("Alert threshold", 0.10, 0.95, float(st.session_state.threshold), 0.05)
+threshold = float(trained_threshold)
 source = st.sidebar.selectbox("Stream source", ["Demo streaming", "EEG CSV", "Single EEG window"], index=["Demo streaming", "EEG CSV", "Single EEG window"].index(st.session_state.source))
 st.session_state.update(patient_id=patient_id, patient_name=patient_name, session_note=session_note, threshold=threshold, source=source)
 
@@ -136,6 +129,9 @@ if st.sidebar.button("🧹 Clear alert history", use_container_width=True):
     st.session_state.previous_prediction = 0
 
 st.sidebar.markdown("---")
+st.sidebar.markdown("**Learned alert threshold**")
+st.sidebar.info(f"{threshold:.1%} · validation F1 optimized")
+st.sidebar.caption("Read-only: loaded from the trained deployment bundle.")
 st.sidebar.markdown("**Safety**")
 st.sidebar.caption("Research/demo interface. Alerts are model outputs and must not be treated as a diagnosis or emergency medical decision.")
 
@@ -196,7 +192,7 @@ def predict(signal):
         raise ValueError(f"Model expects 178 features, received {x.shape[1]}.")
     scaled = scaler.transform(x)
     proba = float(model.predict_proba(scaled)[0, 1])
-    pred = int(proba >= st.session_state.threshold)
+    pred = int(proba >= trained_threshold)
     return pred, proba
 
 
@@ -286,7 +282,6 @@ def live_command_center():
     elapsed = 0
     if st.session_state.started_at:
         elapsed = max(0, int((datetime.now(timezone.utc) - st.session_state.started_at).total_seconds()))
-    pulse = 72 + ((st.session_state.tick * 3) % 9)
     status = "SEIZURE ALERT" if pred else "NO SEIZURE DETECTED"
 
     if pred:
@@ -300,7 +295,7 @@ def live_command_center():
       <div class="telemetry"><div class="k">Monitor state</div><div class="v {state_class}">● {"LIVE" if st.session_state.monitoring else "STANDBY"}</div><div class="s">700 ms inference cadence</div></div>
       <div class="telemetry"><div class="k">Latest inference</div><div class="v">{latest_ts}</div><div class="s">{st.session_state.get("source_detail", source_detail or "No stream")}</div></div>
       <div class="telemetry"><div class="k">Window</div><div class="v">178 samples</div><div class="s">EEG feature vector X1–X178</div></div>
-      <div class="telemetry"><div class="k">Alert threshold</div><div class="v">{threshold:.0%}</div><div class="s">Current session setting</div></div>
+      <div class="telemetry"><div class="k">Learned alert threshold</div><div class="v">{threshold:.0%}</div><div class="s">Validation F1 optimized</div></div>
     </div>''', unsafe_allow_html=True)
 
     m1, m2, m3, m4, m5 = st.columns(5)
@@ -309,7 +304,8 @@ def live_command_center():
     with m2:
         st.markdown(f'<div class="card"><div class="label">Seizure probability</div><div class="metric">{prob:.1%}</div><div class="sub">Threshold {threshold:.0%}</div></div>', unsafe_allow_html=True)
     with m3:
-        st.markdown(f'<div class="card"><div class="label">Monitor pulse</div><div class="metric">{pulse} <span style="font-size:.8rem">bpm</span></div><div class="sub">Visual monitor effect · not ECG-derived</div></div>', unsafe_allow_html=True)
+        rms = float(np.sqrt(np.mean(np.square(np.asarray(st.session_state.last_signal, dtype=float))))) if st.session_state.last_signal is not None else 0.0
+        st.markdown(f'<div class="card"><div class="label">EEG signal RMS</div><div class="metric">{rms:.1f}</div><div class="sub">Live window amplitude summary</div></div>', unsafe_allow_html=True)
     with m4:
         st.markdown(f'<div class="card"><div class="label">Alert events</div><div class="metric">{len(st.session_state.alerts):02d}</div><div class="sub">This monitoring session</div></div>', unsafe_allow_html=True)
     with m5:
@@ -322,12 +318,19 @@ def live_command_center():
             y = np.asarray(st.session_state.last_signal)
             x = np.arange(1, len(y) + 1)
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=x, y=y, mode="lines", line=dict(color="#5de7e0", width=2.3), fill="tozeroy", fillcolor="rgba(93,231,224,.035)", hovertemplate="Sample %{x}<br>Amplitude %{y:.4f}<extra></extra>"))
+            fig.add_trace(go.Scatter(x=x, y=y, mode="lines", line=dict(color="#4fd7ff", width=2.3), fill="tozeroy", fillcolor="rgba(79,215,255,.045)", hovertemplate="Sample %{x}<br>Amplitude %{y:.4f}<extra></extra>"))
             fig.update_layout(template="plotly_dark", height=400, margin=dict(l=5,r=5,t=8,b=5), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#06131b", xaxis=dict(title="Sample", gridcolor="#173040", zeroline=False), yaxis=dict(title="EEG amplitude", gridcolor="#173040", zeroline=False), showlegend=False)
             st.plotly_chart(fig, use_container_width=True, config={"displaylogo": False, "scrollZoom": False})
         else:
             st.info("Load an EEG source and start monitoring to populate the live waveform.")
-        st.markdown('''<div class="ecg-wrap"><div class="ecg-label">VISUAL PULSE TRACE · MONITOR TELEMETRY</div><svg class="ecg-svg" viewBox="0 0 760 88" preserveAspectRatio="none"><path class="ecg-path" d="M0 52 L75 52 L92 50 L106 54 L122 52 L142 52 L154 17 L165 75 L176 43 L194 52 L270 52 L287 50 L301 54 L317 52 L337 52 L349 17 L360 75 L371 43 L389 52 L465 52 L482 50 L496 54 L512 52 L532 52 L544 17 L555 75 L566 43 L584 52 L660 52 L677 50 L691 54 L707 52 L727 52 L739 17 L750 75 L761 43 L780 52"/><rect class="scan-beam" x="0" y="0" width="3" height="88" fill="rgba(93,231,224,.58)"/></svg></div><div class="pulse-line"></div></div>''', unsafe_allow_html=True)
+        if st.session_state.last_signal is not None:
+            eeg = np.asarray(st.session_state.last_signal, dtype=float)
+            ex = np.arange(1, len(eeg) + 1)
+            mini = go.Figure(go.Scatter(x=ex, y=eeg, mode="lines", line=dict(color="#4ee1b5", width=1.8), fill="tozeroy", fillcolor="rgba(78,225,181,.045)"))
+            mini.update_layout(template="plotly_dark", height=105, margin=dict(l=5,r=5,t=22,b=3), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#05131b", title=dict(text="LIVE EEG TRACE · CURRENT WINDOW", x=0.01, xanchor="left", font=dict(size=10,color="#7891a1")), xaxis=dict(showgrid=False, showticklabels=False, zeroline=False), yaxis=dict(showgrid=False, showticklabels=False, zeroline=False), showlegend=False)
+            st.plotly_chart(mini, use_container_width=True, config={"displaylogo": False})
+        else:
+            st.info("Live EEG trace will appear when a signal window is available.")
 
     with right:
         st.markdown('<div class="section-title">Signal status <span>model output</span></div>', unsafe_allow_html=True)
@@ -348,8 +351,8 @@ def live_command_center():
         else:
             st.info("No alert events recorded in this session.")
     with right2:
-        st.markdown('<div class="card"><div class="section-title">Patient session</div><div class="small-muted">Case</div><b>{}</b><br><div class="small-muted" style="margin-top:8px">Session</div><b>{}</b><br><div class="small-muted" style="margin-top:8px">Model</div><b>{}</b></div>'.format(st.session_state.patient_id, st.session_state.patient_name, model.__class__.__name__), unsafe_allow_html=True)
-        report = {"report_generated_utc": datetime.now(timezone.utc).isoformat(), "patient_case_id": st.session_state.patient_id, "session_label": st.session_state.patient_name, "note": st.session_state.session_note, "model": model.__class__.__name__, "threshold": threshold, "latest_probability": prob, "latest_prediction": pred, "alerts": st.session_state.alerts}
+        st.markdown('<div class="card"><div class="section-title">Patient session</div><div class="small-muted">Case</div><b>{}</b><br><div class="small-muted" style="margin-top:8px">Session</div><b>{}</b><br><div class="small-muted" style="margin-top:8px">Model</div><b>{}</b><br><div class="small-muted" style="margin-top:8px">Learned threshold</div><b>{:.1%}</b></div>'.format(st.session_state.patient_id, st.session_state.patient_name, trained_model_name, threshold), unsafe_allow_html=True)
+        report = {"report_generated_utc": datetime.now(timezone.utc).isoformat(), "patient_case_id": st.session_state.patient_id, "session_label": st.session_state.patient_name, "note": st.session_state.session_note, "model": model.__class__.__name__, "threshold": threshold, "threshold_method": meta.get("threshold_method", "validation F1 maximization"), "latest_probability": prob, "latest_prediction": pred, "alerts": st.session_state.alerts}
         report_json = json.dumps(report, indent=2)
         report_df = pd.DataFrame(st.session_state.alerts)
         csv_bytes = report_df.to_csv(index=False).encode("utf-8") if not report_df.empty else b"time,patient,probability,threshold,source\n"
@@ -362,10 +365,14 @@ live_command_center()
 # Analytics remains outside the live fragment so it does not redraw every 700 ms.
 with st.expander("📊 Model analytics", expanded=False):
     if isinstance(meta, dict) and meta.get("results_df") is not None:
+        st.caption(f"Deployment model: {trained_model_name} · Learned alert threshold: {threshold:.1%}")
         try:
             st.dataframe(pd.DataFrame(meta["results_df"]), use_container_width=True)
         except Exception:
             pass
+    if isinstance(meta, dict) and meta.get("validation_results_df") is not None:
+        with st.expander("Validation model-selection metrics"):
+            st.dataframe(pd.DataFrame(meta["validation_results_df"]), use_container_width=True)
     tabs = st.tabs(["Confusion Matrix", "ROC", "Probability Distribution", "Feature Importance"])
     with tabs[0]:
         cm = meta.get("confusion_matrix") if isinstance(meta, dict) else None
@@ -389,7 +396,7 @@ with st.expander("📊 Model analytics", expanded=False):
     with tabs[2]:
         probs = meta.get("best_proba") if isinstance(meta, dict) else None
         if probs is not None:
-            fig = go.Figure(go.Histogram(x=np.asarray(probs), nbinsx=35, marker_color="#5de7e0"))
+            fig = go.Figure(go.Histogram(x=np.asarray(probs), nbinsx=35, marker_color="#4fd7ff"))
             fig.update_layout(template="plotly_dark", height=360, xaxis_title="Seizure probability", yaxis_title="Count", margin=dict(l=10,r=10,t=25,b=10))
             st.plotly_chart(fig, use_container_width=True)
         else:
@@ -399,7 +406,7 @@ with st.expander("📊 Model analytics", expanded=False):
         if imp is not None:
             imp = np.asarray(imp)
             idx = np.argsort(imp)[::-1][:20]
-            fig = go.Figure(go.Bar(x=imp[idx][::-1], y=[f"X{i+1}" for i in idx][::-1], orientation="h", marker_color="#ffc45c"))
+            fig = go.Figure(go.Bar(x=imp[idx][::-1], y=[f"X{i+1}" for i in idx][::-1], orientation="h", marker_color="#ffc766"))
             fig.update_layout(template="plotly_dark", height=500, xaxis_title="Importance", yaxis_title="EEG feature", margin=dict(l=10,r=10,t=25,b=10))
             st.plotly_chart(fig, use_container_width=True)
         else:
