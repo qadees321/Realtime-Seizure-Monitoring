@@ -9,6 +9,15 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
+# Hide Streamlit main menu, header, and footer
+st.markdown("""
+    <style>
+    #MainMenu {visibility: hidden;}
+    header {visibility: hidden;}
+    footer {visibility: hidden;}
+    </style>
+    """, unsafe_allow_html=True)
+
 st.set_page_config(
     page_title="Realtime Seizure Monitoring",
     page_icon="🏥",
