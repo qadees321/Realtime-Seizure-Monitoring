@@ -1,6 +1,7 @@
 from pathlib import Path
 from datetime import datetime, timezone
 import json
+import io
 
 import joblib
 import numpy as np
@@ -21,6 +22,9 @@ MODEL_PATH = OUT / "best_model.pkl"
 SCALER_PATH = OUT / "scaler.pkl"
 META_PATH = OUT / "metadata.joblib"
 BUNDLE_PATH = OUT / "best_model_bundle.joblib"
+DATA_DIR = ROOT / "data"
+LOCAL_DATA_PATH = DATA_DIR / "epileptic_seizure_data.csv"
+DATA_URL = "https://raw.githubusercontent.com/Jreevo/Epileptic-Seizure-Binary-Classification/master/epilepsy.csv"
 
 st.markdown(
     """
@@ -38,7 +42,7 @@ section[data-testid="stSidebar"]{background:linear-gradient(180deg,#0a0f1d,#080c
 .alert-banner,.safe-banner{border-radius:18px;padding:14px 18px;margin:12px 0;border:1px solid}.alert-banner{border-color:rgba(255,102,133,.58);background:linear-gradient(90deg,rgba(255,102,133,.13),rgba(139,124,255,.06));animation:alertFlash 1s ease-in-out infinite alternate}.safe-banner{border-color:rgba(78,225,181,.32);background:linear-gradient(90deg,rgba(78,225,181,.075),rgba(79,215,255,.035))}
 @keyframes alertFlash{from{box-shadow:0 0 0 rgba(255,102,133,0)}to{box-shadow:0 0 34px rgba(255,102,133,.17)}}
 .section-title{font-size:1rem;font-weight:850;margin:4px 0 12px}.section-title span{color:var(--muted);font-size:.78rem;font-weight:500;margin-left:7px}.session-tag{display:inline-block;padding:5px 9px;border-radius:9px;background:#151f36;color:#b9c5dc;font-size:.7rem;margin-right:5px;border:1px solid #2b3958}
-.top-telemetry{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0}.telemetry{background:rgba(12,18,32,.84);border:1px solid #202d46;border-radius:15px;padding:10px 13px;position:relative;overflow:hidden}.telemetry:after{content:"";position:absolute;top:0;bottom:0;width:80px;background:linear-gradient(90deg,transparent,rgba(139,124,255,.10),transparent);animation:sweep 3s linear infinite}.telemetry .k{font-size:.61rem;color:#7786a0;text-transform:uppercase;letter-spacing:.11em}.telemetry .v{font-size:1.02rem;font-weight:850;margin-top:2px}.telemetry .s{font-size:.67rem;color:#93a0b6;margin-top:2px}.live-text{color:var(--mint)}.standby-text{color:#9aa7ba}@keyframes sweep{from{left:-100px}to{left:100%}}
+.top-telemetry{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0}.telemetry{background:rgba(12,18,32,.84);border:1px solid #202d46;border-radius:15px;padding:10px 13px;position:relative;overflow:hidden}.telemetry:after{content:"";position:absolute;top:0;bottom:0;width:80px;background:linear-gradient(90deg,transparent,rgba(139,124,255,.10),transparent);animation:sweep 3s linear infinite}.telemetry .k{font-size:.61rem;color:#7786a0;text-transform:uppercase;letter-spacing:.11em}.telemetry .v{font-size:1.02rem;font-weight:850;margin-top:2px}.telemetry .s{font-size:.67rem;color:#93a0b6;margin-top:2px}.live-text{color:var(--mint)}.standby-text{color:#9aa7ba}.safe-text{color:var(--mint)}.alert-text{color:var(--rose)}@keyframes sweep{from{left:-100px}to{left:100%}}
 .monitor-shell{border:1px solid #293753;border-radius:21px;background:linear-gradient(145deg,#0a101d,#0d1525);padding:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 20px 60px rgba(0,0,0,.20)}
 .monitor-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:9px}.monitor-head .title{font-size:1.05rem;font-weight:850}.monitor-head .meta{font-size:.71rem;color:#7786a0;margin-top:2px}
 .pulse-line{height:3px;border-radius:4px;background:linear-gradient(90deg,transparent,var(--cyan),var(--violet),transparent);background-size:220% 100%;animation:scan 1.25s linear infinite;opacity:.85}@keyframes scan{to{background-position:-220% 0}}
@@ -86,8 +90,10 @@ def init_state():
         "patient_name": "Research Session",
         "session_note": "EEG screening session",
         "threshold": None,
-        "source": "Demo streaming",
-        "source_detail": "Synthetic demonstration stream",
+        "source": "Real seizure replay",
+        "source_detail": "Real EEG replay dataset",
+        "replay_filter": "Seizure",
+        "replay_row": 0,
     }
     for k, v in defaults.items():
         st.session_state.setdefault(k, v)
@@ -101,7 +107,7 @@ st.markdown(
   <div>
     <div class="kicker">CLINICAL RESEARCH • EEG ANALYTICS • LIVE MONITOR</div>
     <h1>Realtime Seizure Monitoring</h1>
-    <p>Hospital-style EEG command center for live screening, event surveillance and session reporting.</p>
+    <p>Hospital-style EEG command center for real EEG replay, live screening, event surveillance and session reporting.</p>
   </div>
   <div class="live-pill"><span class="live-dot"></span> MONITOR READY</div>
 </div>
@@ -121,7 +127,8 @@ patient_id = st.sidebar.text_input("Patient / Case ID", value=st.session_state.p
 patient_name = st.sidebar.text_input("Session label", value=st.session_state.patient_name)
 session_note = st.sidebar.text_area("Clinical / research note", value=st.session_state.session_note, height=80)
 threshold = float(trained_threshold)
-source = st.sidebar.selectbox("Stream source", ["Demo streaming", "EEG CSV", "Single EEG window"], index=["Demo streaming", "EEG CSV", "Single EEG window"].index(st.session_state.source))
+source_options = ["Real seizure replay", "Real non-seizure replay", "EEG CSV", "Single EEG window"]
+source = st.sidebar.selectbox("Stream source", source_options, index=source_options.index(st.session_state.source) if st.session_state.source in source_options else 0)
 st.session_state.update(patient_id=patient_id, patient_name=patient_name, session_note=session_note, threshold=threshold, source=source)
 
 if st.sidebar.button("🧹 Clear alert history", use_container_width=True):
@@ -134,6 +141,9 @@ st.sidebar.info(f"{threshold:.1%} · validation F1 optimized")
 st.sidebar.caption("Read-only: loaded from the trained deployment bundle.")
 st.sidebar.markdown("**Safety**")
 st.sidebar.caption("Research/demo interface. Alerts are model outputs and must not be treated as a diagnosis or emergency medical decision.")
+
+if source in ("Real seizure replay", "Real non-seizure replay"):
+    st.sidebar.success("Using real EEG windows from the project dataset — not a synthetic waveform.")
 
 
 def get_csv_signal():
@@ -170,12 +180,42 @@ def parse_single():
         return None, None
 
 
-def demo_signal(tick=0):
-    rng = np.random.default_rng(42 + tick)
-    t = np.linspace(0, 1, 178)
-    active = tick % 22 in range(8, 15)
-    burst = 1.0 + (0.72 * np.exp(-((t - (0.26 + 0.03 * np.sin(tick / 5))) / 0.075) ** 2) if active else 0.0)
-    return burst * (0.72 * np.sin(2 * np.pi * (8.5 + 0.2 * np.sin(tick / 7)) * t) + 0.25 * np.sin(2 * np.pi * 17 * t)) + rng.normal(0, .22, 178)
+@st.cache_data(ttl=3600, show_spinner=False)
+def load_replay_dataset():
+    """Load the same 11,500-row EEG dataset used by the training notebook.
+
+    Prefer a local copy in data/ for deployment stability; otherwise use the
+    public GitHub mirror referenced by the notebook. Only X1-X178 and y are kept.
+    """
+    if LOCAL_DATA_PATH.exists():
+        df = pd.read_csv(LOCAL_DATA_PATH)
+    else:
+        df = pd.read_csv(DATA_URL)
+    feature_cols = [f"X{i}" for i in range(1, 179)]
+    missing = [c for c in feature_cols + ["y"] if c not in df.columns]
+    if missing:
+        raise ValueError(f"Replay dataset is missing columns: {missing[:8]}")
+    df = df[feature_cols + ["y"]].copy()
+    df["binary_label"] = (pd.to_numeric(df["y"], errors="coerce") == 1).astype(int)
+    return df
+
+
+def get_replay_signal(mode):
+    try:
+        df = load_replay_dataset()
+    except Exception as exc:
+        st.error(f"Could not load the real EEG replay dataset: {exc}")
+        st.info("For reliable deployment, place data/epileptic_seizure_data.csv in the GitHub repository. The notebook uses the same public dataset.")
+        return None, None
+    target = 1 if mode == "Real seizure replay" else 0
+    subset = df[df["binary_label"] == target]
+    if subset.empty:
+        return None, None
+    row = st.session_state.replay_row % len(subset)
+    cols = [f"X{i}" for i in range(1, 179)]
+    signal = subset.iloc[row][cols].astype(float).values
+    label_text = "Seizure" if target else "Non-Seizure"
+    return signal, f"Real EEG replay · {label_text} · sample {row + 1}/{len(subset)}"
 
 
 if source == "EEG CSV":
@@ -183,7 +223,7 @@ if source == "EEG CSV":
 elif source == "Single EEG window":
     signal, source_detail = parse_single()
 else:
-    signal, source_detail = demo_signal(st.session_state.tick), "Synthetic demonstration stream"
+    signal, source_detail = get_replay_signal(source)
 
 
 def predict(signal):
@@ -203,6 +243,7 @@ with c1:
         st.session_state.monitoring = True
         st.session_state.started_at = datetime.now(timezone.utc)
         st.session_state.tick = 0
+        st.session_state.replay_row = 0
         st.session_state.alerts = []
         st.session_state.previous_prediction = 0
         st.rerun()
@@ -214,6 +255,7 @@ with c3:
     if st.button("↻ Reset", use_container_width=True):
         st.session_state.monitoring = False
         st.session_state.tick = 0
+        st.session_state.replay_row = 0
         st.session_state.alerts = []
         st.session_state.previous_prediction = 0
         st.session_state.last_signal = None
@@ -231,9 +273,9 @@ def live_command_center():
     # Actual repeated model inference while monitoring is active.
     if st.session_state.monitoring:
         tick = st.session_state.tick
-        if source == "Demo streaming":
-            live_signal = demo_signal(tick)
-            detail = "Synthetic demonstration stream"
+        if source in ("Real seizure replay", "Real non-seizure replay"):
+            live_signal, detail = get_replay_signal(source)
+            st.session_state.replay_row += 1
         elif source == "EEG CSV" and st.session_state.csv_df is not None:
             df = st.session_state.csv_df
             cols = st.session_state.csv_features
@@ -311,6 +353,13 @@ def live_command_center():
     with m5:
         st.markdown(f'<div class="card"><div class="label">Session time</div><div class="metric">{elapsed//60:02d}:{elapsed%60:02d}</div><div class="sub">{model.__class__.__name__}</div></div>', unsafe_allow_html=True)
 
+    if source in ("Real seizure replay", "Real non-seizure replay"):
+        replay_label = 1 if source == "Real seizure replay" else 0
+        replay_text = "SEIZURE" if replay_label else "NON-SEIZURE"
+        agreement = "MATCH" if pred == replay_label else "MISMATCH"
+        agreement_cls = "safe-text" if pred == replay_label else "alert-text"
+        st.markdown(f'<div class="card" style="margin:10px 0;border-color:#2b3958"><div class="label">Replay ground truth</div><div class="metric">{replay_text}</div><div class="sub">Model output: {"SEIZURE" if pred else "NON-SEIZURE"} · <b class="{agreement_cls}">{agreement}</b> · demonstration label comes from the dataset</div></div>', unsafe_allow_html=True)
+
     left, right = st.columns([2.15, 1])
     with left:
         st.markdown('<div class="monitor-shell"><div class="monitor-head"><div><div class="title">Live EEG waveform</div><div class="meta">Streaming neural signal · 178 samples · model input window</div></div><span class="session-tag">LIVE EEG</span></div>', unsafe_allow_html=True)
@@ -373,6 +422,16 @@ with st.expander("📊 Model analytics", expanded=False):
     if isinstance(meta, dict) and meta.get("validation_results_df") is not None:
         with st.expander("Validation model-selection metrics"):
             st.dataframe(pd.DataFrame(meta["validation_results_df"]), use_container_width=True)
+    if source in ("Real seizure replay", "Real non-seizure replay"):
+        st.caption("Replay source: real 178-sample EEG windows from the same dataset family used for training. Replay label is shown for demonstration only; the model prediction remains independent.")
+    cbal1, cbal2, cbal3 = st.columns(3)
+    with cbal1:
+        st.metric("Dataset windows", "11,500")
+    with cbal2:
+        st.metric("Seizure windows", "2,300", "20%")
+    with cbal3:
+        st.metric("Non-seizure windows", "9,200", "80%")
+    st.caption("The class imbalance is 1:4. The optional retraining script uses class-balanced models and selects the alert threshold on validation data rather than changing the threshold manually in the UI.")
     tabs = st.tabs(["Confusion Matrix", "ROC", "Probability Distribution", "Feature Importance"])
     with tabs[0]:
         cm = meta.get("confusion_matrix") if isinstance(meta, dict) else None
