@@ -29,28 +29,31 @@ DATA_URL = "https://raw.githubusercontent.com/Jreevo/Epileptic-Seizure-Binary-Cl
 st.markdown(
     """
 <style>
-:root{--bg:#070b16;--panel:#0d1322;--panel2:#111a2d;--line:#24314b;--text:#f5f7ff;--muted:#8d9ab2;--violet:#8b7cff;--cyan:#4fd7ff;--mint:#4ee1b5;--rose:#ff6685;--amber:#ffc766;--blue:#6ea8ff}
-.stApp{background:radial-gradient(circle at 82% -8%,rgba(139,124,255,.20),transparent 32%),radial-gradient(circle at 12% 0%,rgba(79,215,255,.12),transparent 28%),linear-gradient(135deg,#070b16 0%,#090e1b 55%,#070b15 100%);color:var(--text)}
+:root{--bg:#071218;--panel:#0b1b22;--panel2:#10262d;--line:#21414a;--text:#f2fbfa;--muted:#8ea9ad;--teal:#35e0c2;--cyan:#56d9ff;--mint:#67e8b3;--rose:#ff6b7a;--amber:#ffca6b;--blue:#7eb6ff;--purple:#9b8cff}
+.stApp{background:radial-gradient(circle at 85% -10%,rgba(53,224,194,.18),transparent 34%),radial-gradient(circle at 10% 0%,rgba(86,217,255,.12),transparent 28%),linear-gradient(135deg,#071218 0%,#08161d 52%,#061017 100%);color:var(--text)}
 .block-container{max-width:1540px;padding:1.15rem 1.7rem 3rem}
 section[data-testid="stSidebar"]{background:linear-gradient(180deg,#0a0f1d,#080c16);border-right:1px solid #1d2940}
 .hero{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:26px 29px;border:1px solid #293552;border-radius:24px;background:linear-gradient(135deg,rgba(17,25,44,.97),rgba(10,14,27,.98));box-shadow:0 22px 70px rgba(0,0,0,.30)}
-.hero h1{margin:0;font-size:2.65rem;letter-spacing:-.055em;background:linear-gradient(90deg,#fff,var(--cyan),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}.hero p{margin:.45rem 0 0;color:#9aa8bf}.kicker{font-size:.7rem;letter-spacing:.16em;font-weight:850;color:var(--cyan)}
+.hero h1{margin:0;font-size:2.65rem;letter-spacing:-.055em;background:linear-gradient(90deg,#fff,var(--cyan),var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent}.hero p{margin:.45rem 0 0;color:#9aa8bf}.kicker{font-size:.7rem;letter-spacing:.16em;font-weight:850;color:var(--cyan)}
 .live-pill{display:flex;align-items:center;gap:9px;padding:10px 15px;border-radius:999px;border:1px solid #344264;background:rgba(21,31,53,.8);font-weight:850;font-size:.8rem;white-space:nowrap}.live-dot{width:9px;height:9px;border-radius:50%;background:var(--mint);box-shadow:0 0 0 0 rgba(78,225,181,.55);animation:pulse 1.45s infinite}
 @keyframes pulse{70%{box-shadow:0 0 0 9px rgba(78,225,181,0)}100%{box-shadow:0 0 0 0 rgba(78,225,181,0)}}
-.card{background:linear-gradient(145deg,rgba(17,25,43,.96),rgba(10,15,27,.98));border:1px solid var(--line);border-radius:18px;padding:16px 17px;box-shadow:0 10px 35px rgba(0,0,0,.12)}
+.card{background:linear-gradient(145deg,rgba(13,31,38,.97),rgba(7,19,25,.99));border:1px solid var(--line);border-radius:18px;padding:16px 17px;box-shadow:0 10px 35px rgba(0,0,0,.12)}
 .metric{font-size:1.7rem;font-weight:850;line-height:1.1}.label{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}.sub{font-size:.76rem;color:#9ba9bd;margin-top:6px}.small-muted{color:var(--muted);font-size:.74rem}
 .alert-banner,.safe-banner{border-radius:18px;padding:14px 18px;margin:12px 0;border:1px solid}.alert-banner{border-color:rgba(255,102,133,.58);background:linear-gradient(90deg,rgba(255,102,133,.13),rgba(139,124,255,.06));animation:alertFlash 1s ease-in-out infinite alternate}.safe-banner{border-color:rgba(78,225,181,.32);background:linear-gradient(90deg,rgba(78,225,181,.075),rgba(79,215,255,.035))}
 @keyframes alertFlash{from{box-shadow:0 0 0 rgba(255,102,133,0)}to{box-shadow:0 0 34px rgba(255,102,133,.17)}}
 .section-title{font-size:1rem;font-weight:850;margin:4px 0 12px}.section-title span{color:var(--muted);font-size:.78rem;font-weight:500;margin-left:7px}.session-tag{display:inline-block;padding:5px 9px;border-radius:9px;background:#151f36;color:#b9c5dc;font-size:.7rem;margin-right:5px;border:1px solid #2b3958}
-.top-telemetry{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0}.telemetry{background:rgba(12,18,32,.84);border:1px solid #202d46;border-radius:15px;padding:10px 13px;position:relative;overflow:hidden}.telemetry:after{content:"";position:absolute;top:0;bottom:0;width:80px;background:linear-gradient(90deg,transparent,rgba(139,124,255,.10),transparent);animation:sweep 3s linear infinite}.telemetry .k{font-size:.61rem;color:#7786a0;text-transform:uppercase;letter-spacing:.11em}.telemetry .v{font-size:1.02rem;font-weight:850;margin-top:2px}.telemetry .s{font-size:.67rem;color:#93a0b6;margin-top:2px}.live-text{color:var(--mint)}.standby-text{color:#9aa7ba}.safe-text{color:var(--mint)}.alert-text{color:var(--rose)}@keyframes sweep{from{left:-100px}to{left:100%}}
+.top-telemetry{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0}.telemetry{background:rgba(8,25,32,.88);border:1px solid #1c3c45;border-radius:15px;padding:10px 13px;position:relative;overflow:hidden}.telemetry:after{content:"";position:absolute;top:0;bottom:0;width:80px;background:linear-gradient(90deg,transparent,rgba(53,224,194,.10),transparent);animation:sweep 3s linear infinite}.telemetry .k{font-size:.61rem;color:#7786a0;text-transform:uppercase;letter-spacing:.11em}.telemetry .v{font-size:1.02rem;font-weight:850;margin-top:2px}.telemetry .s{font-size:.67rem;color:#93a0b6;margin-top:2px}.live-text{color:var(--mint)}.standby-text{color:#9aa7ba}.safe-text{color:var(--mint)}.alert-text{color:var(--rose)}@keyframes sweep{from{left:-100px}to{left:100%}}
 .monitor-shell{border:1px solid #293753;border-radius:21px;background:linear-gradient(145deg,#0a101d,#0d1525);padding:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 20px 60px rgba(0,0,0,.20)}
 .monitor-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:9px}.monitor-head .title{font-size:1.05rem;font-weight:850}.monitor-head .meta{font-size:.71rem;color:#7786a0;margin-top:2px}
-.pulse-line{height:3px;border-radius:4px;background:linear-gradient(90deg,transparent,var(--cyan),var(--violet),transparent);background-size:220% 100%;animation:scan 1.25s linear infinite;opacity:.85}@keyframes scan{to{background-position:-220% 0}}
+.pulse-line{height:3px;border-radius:4px;background:linear-gradient(90deg,transparent,var(--cyan),var(--teal),transparent);background-size:220% 100%;animation:scan 1.25s linear infinite;opacity:.85}@keyframes scan{to{background-position:-220% 0}}
 .alert-dot,.safe-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}.alert-dot{background:var(--rose);box-shadow:0 0 0 0 rgba(255,102,133,.5);animation:pulse 1s infinite}.safe-dot{background:var(--mint);box-shadow:0 0 0 0 rgba(78,225,181,.5);animation:pulse 1.7s infinite}
-.stButton>button{border-radius:12px;border:1px solid #2b3a59;background:linear-gradient(180deg,#141e34,#101829);color:#f4f7ff;font-weight:800;min-height:43px;transition:.18s}.stButton>button:hover{border-color:var(--cyan);background:linear-gradient(180deg,#182640,#131d32);transform:translateY(-1px)}
+.stButton>button{border-radius:12px;border:1px solid #2b3a59;background:linear-gradient(180deg,#112a31,#0c2027);color:#f4f7ff;font-weight:800;min-height:43px;transition:.18s}.stButton>button:hover{border-color:var(--teal);background:linear-gradient(180deg,#123039,#0d252d);transform:translateY(-1px)}
 .stDownloadButton>button{border-radius:12px!important;border:1px solid #2b3a59!important;background:#111a2d!important;color:#f4f7ff!important}
-div[data-baseweb="select"]>div, .stTextInput input, .stTextArea textarea{background:#0d1526!important;border-color:#293753!important;color:#f5f7ff!important;border-radius:11px!important}
+div[data-baseweb="select"]>div, .stTextInput input, .stTextArea textarea{background:#0b2027!important;border-color:#28505a!important;color:#f5f7ff!important;border-radius:11px!important}
 [data-testid="stMetric"]{background:transparent}footer{visibility:hidden}
+
+.analytics-hero{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;padding:18px 20px;border:1px solid #24505a;border-radius:20px;background:linear-gradient(135deg,rgba(17,48,57,.92),rgba(8,24,30,.98));margin-bottom:14px}.analytics-hero h2{margin:0;font-size:1.45rem;letter-spacing:-.02em}.analytics-hero p{margin:5px 0 0;color:#9bb5b9;font-size:.8rem}.analytics-badge{padding:7px 11px;border-radius:999px;background:rgba(53,224,194,.10);border:1px solid rgba(53,224,194,.28);color:#75f0d5;font-size:.7rem;font-weight:800;white-space:nowrap}.analytics-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0 16px}.analytics-stat{padding:14px;border-radius:16px;background:linear-gradient(145deg,#0d252d,#091a21);border:1px solid #21454e}.analytics-stat .n{font-size:1.55rem;font-weight:900}.analytics-stat .l{font-size:.66rem;text-transform:uppercase;letter-spacing:.11em;color:#7f9ca1;margin-top:3px}.analytics-stat .s{font-size:.72rem;color:#9bb0b4;margin-top:5px}.upload-shell{padding:18px;border:1px solid #24505a;border-radius:20px;background:linear-gradient(145deg,rgba(13,35,43,.96),rgba(7,20,26,.99));box-shadow:0 14px 40px rgba(0,0,0,.16);margin:8px 0 14px}.upload-title{font-size:1.08rem;font-weight:900}.upload-sub{font-size:.76rem;color:#8fa9ad;margin-top:3px}.mini-chip{display:inline-block;padding:4px 8px;border-radius:8px;background:#103039;border:1px solid #24535d;color:#9cefe1;font-size:.67rem;margin-right:5px}.analytics-note{padding:10px 13px;border-left:3px solid var(--teal);background:rgba(53,224,194,.055);border-radius:8px;color:#9fb6b9;font-size:.75rem}
+@media(max-width:1100px){.analytics-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:900px){.hero h1{font-size:1.8rem}.top-telemetry{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 """,
@@ -147,37 +150,127 @@ if source in ("Real seizure replay", "Real non-seizure replay"):
 
 
 def get_csv_signal():
-    uploaded = st.file_uploader("Upload a CSV containing one or more 178-point EEG windows", type=["csv"])
+    st.markdown(
+        '<div class="upload-shell"><div class="upload-title">📁 EEG CSV workspace</div><div class="upload-sub">Upload one or more EEG windows. The app validates X1–X178, previews the selected window, and lets you inspect the signal before inference.</div></div>',
+        unsafe_allow_html=True,
+    )
+    uploaded = st.file_uploader(
+        "Drop your EEG CSV here",
+        type=["csv"],
+        help="CSV should contain X1–X178. A y/label column is allowed and will be ignored for model input.",
+    )
     if uploaded is None:
+        st.info("Waiting for a CSV file. Recommended format: X1, X2, …, X178, with one EEG window per row.")
         return None, None
-    df = pd.read_csv(uploaded)
-    feature_cols = [c for c in df.columns if str(c).lower().startswith("x")]
-    if len(feature_cols) != 178:
-        feature_cols = [c for c in df.columns if pd.api.types.is_numeric_dtype(df[c]) and str(c).lower() not in {"y", "target", "label"}]
+    try:
+        df = pd.read_csv(uploaded)
+    except Exception as exc:
+        st.error(f"Could not read the CSV file: {exc}")
+        return None, None
+    feature_cols = [f"X{i}" for i in range(1, 179)]
+    if not all(c in df.columns for c in feature_cols):
+        lower_map = {str(c).strip().lower(): c for c in df.columns}
+        aliases = [lower_map.get(f"x{i}") for i in range(1,179)]
+        if all(a is not None for a in aliases):
+            feature_cols = aliases
+        else:
+            numeric = [c for c in df.columns if pd.api.types.is_numeric_dtype(df[c]) and str(c).lower() not in {"y","target","label"}]
+            if len(numeric) == 178:
+                feature_cols = numeric
     if len(feature_cols) != 178:
         st.error(f"Expected 178 EEG columns (X1–X178); detected {len(feature_cols)} usable columns.")
+        st.caption("Tip: keep the feature names X1 through X178. Extra columns such as y, target, label, or an ID are fine.")
         return None, None
+    df[feature_cols] = df[feature_cols].apply(pd.to_numeric, errors="coerce")
+    valid_mask = df[feature_cols].notna().all(axis=1)
+    if not valid_mask.all():
+        st.warning(f"{int((~valid_mask).sum())} row(s) contain missing/non-numeric EEG values. Those rows may not be suitable for inference.")
     st.session_state.csv_df = df
     st.session_state.csv_features = feature_cols
     max_row = max(len(df) - 1, 0)
-    row = st.slider("Preview / starting row", 0, max_row, min(st.session_state.csv_row, max_row))
+    row = st.slider("Select EEG window", 0, max_row, min(st.session_state.csv_row, max_row), format="Window %d")
     st.session_state.csv_row = row
-    return df[feature_cols].iloc[row].astype(float).values, f"CSV row {row + 1}/{len(df)}"
+    vals = df[feature_cols].iloc[row].astype(float).values
+    c1,c2,c3,c4 = st.columns(4)
+    with c1: st.metric("Rows / windows", f"{len(df):,}")
+    with c2: st.metric("EEG features", "178")
+    with c3: st.metric("Selected window", f"{row+1:,}")
+    with c4: st.metric("Signal RMS", f"{np.sqrt(np.mean(np.square(vals))):.3f}")
+    fig = go.Figure(go.Scatter(x=np.arange(1,179), y=vals, mode="lines", line=dict(color="#35e0c2", width=2), fill="tozeroy", fillcolor="rgba(53,224,194,.055)"))
+    fig.update_layout(template="plotly_dark", height=260, margin=dict(l=5,r=5,t=18,b=5), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#071b22", xaxis=dict(title="Feature sample", gridcolor="#17383f"), yaxis=dict(title="Amplitude", gridcolor="#17383f"), showlegend=False)
+    st.plotly_chart(fig, use_container_width=True, config={"displaylogo":False,"scrollZoom":False})
+    st.markdown(f'<span class="mini-chip">CSV loaded</span><span class="mini-chip">178 features validated</span><span class="mini-chip">Window {row+1} ready</span>', unsafe_allow_html=True)
+    return vals, f"CSV row {row + 1}/{len(df)}"
 
 
 def parse_single():
-    text = st.text_area("Paste exactly 178 EEG values", height=120, placeholder="0.14, -0.32, 0.51, ...")
-    if not text.strip():
-        return None, None
-    try:
-        signal = np.fromstring(text.replace(",", " ").replace("\n", " "), sep=" ")
-        if len(signal) != 178:
-            st.warning(f"Received {len(signal)} values. Exactly 178 are required.")
-            return None, None
-        return signal, "Manual EEG window"
-    except Exception:
-        st.error("Could not parse the EEG values.")
-        return None, None
+    st.markdown(
+        '<div class="upload-shell"><div class="upload-title">⌨️ Single EEG window</div><div class="upload-sub">Enter the 178 model features in a compact spreadsheet-style grid. Only the value cells are editable.</div></div>',
+        unsafe_allow_html=True,
+    )
+    if "manual_values" not in st.session_state or len(st.session_state.manual_values) != 178:
+        st.session_state.manual_values = [0.0] * 178
+    rows = 36
+    data = {}
+    for pair in range(5):
+        fcol, vcol = f"Feature {pair+1}", f"Value {pair+1}"
+        features=[]; values=[]
+        for r in range(rows):
+            idx = r*5 + pair
+            if idx < 178:
+                features.append(f"X{idx+1}")
+                values.append(float(st.session_state.manual_values[idx]))
+            else:
+                features.append("")
+                values.append(np.nan)
+        data[fcol]=features; data[vcol]=values
+    grid = pd.DataFrame(data)
+    edited = st.data_editor(
+        grid,
+        hide_index=True,
+        use_container_width=True,
+        height=610,
+        disabled=["Feature 1","Feature 2","Feature 3","Feature 4","Feature 5"],
+        column_config={
+            "Feature 1": st.column_config.TextColumn("Feature", width="small"), "Value 1": st.column_config.NumberColumn("Value", format="%.6f", width="medium"),
+            "Feature 2": st.column_config.TextColumn("Feature", width="small"), "Value 2": st.column_config.NumberColumn("Value", format="%.6f", width="medium"),
+            "Feature 3": st.column_config.TextColumn("Feature", width="small"), "Value 3": st.column_config.NumberColumn("Value", format="%.6f", width="medium"),
+            "Feature 4": st.column_config.TextColumn("Feature", width="small"), "Value 4": st.column_config.NumberColumn("Value", format="%.6f", width="medium"),
+            "Feature 5": st.column_config.TextColumn("Feature", width="small"), "Value 5": st.column_config.NumberColumn("Value", format="%.6f", width="medium"),
+        },
+        key="manual_eeg_grid",
+    )
+    values = [0.0]*178
+    for pair in range(5):
+        for r in range(rows):
+            idx = r*5+pair
+            if idx < 178:
+                val = edited.iloc[r][f"Value {pair+1}"]
+                values[idx] = 0.0 if pd.isna(val) else float(val)
+    st.session_state.manual_values = values
+    pasted = st.text_area(
+        "Optional: paste all 178 values at once",
+        height=80,
+        placeholder="Paste comma-, space-, or newline-separated values here…",
+        help="If provided, click Apply pasted values to load them into the table above.",
+        key="manual_paste",
+    )
+    if st.button("↳ Apply pasted values", use_container_width=True, key="apply_paste"):
+        arr = np.fromstring(pasted.replace(","," ").replace("\n"," "), sep=" ") if pasted.strip() else np.array([])
+        if len(arr) != 178:
+            st.error(f"Expected exactly 178 values; received {len(arr)}.")
+        else:
+            st.session_state.manual_values = arr.astype(float).tolist()
+            st.rerun()
+    vals = np.asarray(st.session_state.manual_values, dtype=float)
+    c1,c2,c3 = st.columns(3)
+    with c1: st.metric("Features entered", "178 / 178")
+    with c2: st.metric("Signal RMS", f"{np.sqrt(np.mean(np.square(vals))):.3f}")
+    with c3: st.metric("Peak amplitude", f"{np.max(np.abs(vals)):.3f}")
+    fig = go.Figure(go.Scatter(x=np.arange(1,179), y=vals, mode="lines", line=dict(color="#56d9ff", width=2), fill="tozeroy", fillcolor="rgba(86,217,255,.05)"))
+    fig.update_layout(template="plotly_dark", height=250, margin=dict(l=5,r=5,t=18,b=5), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#071b22", xaxis=dict(title="Feature index", gridcolor="#17383f"), yaxis=dict(title="Value", gridcolor="#17383f"), showlegend=False)
+    st.plotly_chart(fig, use_container_width=True, config={"displaylogo":False,"scrollZoom":False})
+    return vals, "Manual EEG window"
 
 
 @st.cache_data(ttl=3600, show_spinner=False)
@@ -413,62 +506,77 @@ live_command_center()
 
 # Analytics remains outside the live fragment so it does not redraw every 700 ms.
 with st.expander("📊 Model analytics", expanded=False):
-    if isinstance(meta, dict) and meta.get("results_df") is not None:
-        st.caption(f"Deployment model: {trained_model_name} · Learned alert threshold: {threshold:.1%}")
-        try:
-            st.dataframe(pd.DataFrame(meta["results_df"]), use_container_width=True)
-        except Exception:
-            pass
-    if isinstance(meta, dict) and meta.get("validation_results_df") is not None:
-        with st.expander("Validation model-selection metrics"):
-            st.dataframe(pd.DataFrame(meta["validation_results_df"]), use_container_width=True)
-    if source in ("Real seizure replay", "Real non-seizure replay"):
-        st.caption("Replay source: real 178-sample EEG windows from the same dataset family used for training. Replay label is shown for demonstration only; the model prediction remains independent.")
-    cbal1, cbal2, cbal3 = st.columns(3)
-    with cbal1:
-        st.metric("Dataset windows", "11,500")
-    with cbal2:
-        st.metric("Seizure windows", "2,300", "20%")
-    with cbal3:
-        st.metric("Non-seizure windows", "9,200", "80%")
-    st.caption("The class imbalance is 1:4. The optional retraining script uses class-balanced models and selects the alert threshold on validation data rather than changing the threshold manually in the UI.")
-    tabs = st.tabs(["Confusion Matrix", "ROC", "Probability Distribution", "Feature Importance"])
-    with tabs[0]:
-        cm = meta.get("confusion_matrix") if isinstance(meta, dict) else None
-        if cm is not None:
-            cm = np.asarray(cm)
-            fig = go.Figure(go.Heatmap(z=cm, x=["Non-Seizure","Seizure"], y=["Non-Seizure","Seizure"], colorscale="Teal", text=cm, texttemplate="%{text}"))
-            fig.update_layout(template="plotly_dark", height=360, margin=dict(l=10,r=10,t=25,b=10))
-            st.plotly_chart(fig, use_container_width=True)
+    results_df = pd.DataFrame(meta.get("results_df", [])) if isinstance(meta, dict) and meta.get("results_df") is not None else pd.DataFrame()
+    validation_df = pd.DataFrame(meta.get("validation_results_df", [])) if isinstance(meta, dict) and meta.get("validation_results_df") is not None else pd.DataFrame()
+    roc_auc = float(meta.get("roc_auc", np.nan)) if isinstance(meta, dict) and meta.get("roc_auc") is not None else np.nan
+    cm = np.asarray(meta.get("confusion_matrix")) if isinstance(meta, dict) and meta.get("confusion_matrix") is not None else None
+    total = 11500; seizure_n = 2300; non_n = 9200
+
+    st.markdown(f'''<div class="analytics-hero"><div><h2>Model performance cockpit</h2><p>Evaluation, decision threshold, class balance and diagnostic views in one place.</p></div><div class="analytics-badge">{trained_model_name} · threshold {threshold:.1%}</div></div>''', unsafe_allow_html=True)
+    st.markdown(f'''<div class="analytics-grid">
+      <div class="analytics-stat"><div class="n">{total:,}</div><div class="l">Dataset windows</div><div class="s">178 EEG features per window</div></div>
+      <div class="analytics-stat"><div class="n">{seizure_n:,}</div><div class="l">Seizure windows</div><div class="s">20% of dataset</div></div>
+      <div class="analytics-stat"><div class="n">{non_n:,}</div><div class="l">Non-seizure windows</div><div class="s">80% of dataset</div></div>
+      <div class="analytics-stat"><div class="n">{threshold:.0%}</div><div class="l">Alert threshold</div><div class="s">Validation F1 optimized</div></div>
+    </div>''', unsafe_allow_html=True)
+
+    at1, at2, at3 = st.tabs(["🏆 Model comparison", "🧪 Diagnostics", "🧬 Feature signals"])
+    with at1:
+        if not results_df.empty:
+            display_df = results_df.copy()
+            numeric_cols = [c for c in display_df.columns if str(c).lower() in {"accuracy","precision","recall","f1","roc_auc","roc-auc","auc"}]
+            st.dataframe(display_df, use_container_width=True, hide_index=True, column_config={c: st.column_config.NumberColumn(str(c).replace("_"," ").title(), format="%.3f") for c in numeric_cols})
+            metric_options = [c for c in display_df.columns if str(c).lower() in {"accuracy","precision","recall","f1","roc_auc","roc-auc","auc"}]
+            if metric_options:
+                default_idx = next((i for i,c in enumerate(metric_options) if str(c).lower()=="f1"),0)
+                metric_col = st.selectbox("Compare metric", metric_options, index=default_idx)
+                model_col = next((c for c in display_df.columns if str(c).lower() in {"model","name","model_name"}), None)
+                if model_col is not None and metric_col in display_df.columns:
+                    plot_df=display_df[[model_col,metric_col]].dropna()
+                    fig=go.Figure(go.Bar(x=plot_df[model_col].astype(str),y=plot_df[metric_col].astype(float),marker_color="#35e0c2",text=[f"{v:.3f}" for v in plot_df[metric_col]],textposition="outside"))
+                    fig.update_layout(template="plotly_dark",height=340,yaxis=dict(title=str(metric_col).replace("_"," ").title(),range=[0,1.05],gridcolor="#17383f"),xaxis=dict(title="Model"),margin=dict(l=10,r=10,t=35,b=10),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="#071b22",showlegend=False)
+                    st.plotly_chart(fig,use_container_width=True,config={"displaylogo":False})
         else:
-            st.info("Run the deployment export cell in the notebook to package evaluation metadata.")
-    with tabs[1]:
-        fpr = meta.get("fpr") if isinstance(meta, dict) else None
-        tpr = meta.get("tpr") if isinstance(meta, dict) else None
-        if fpr is not None and tpr is not None:
-            fig = go.Figure(go.Scatter(x=fpr, y=tpr, mode="lines", line=dict(color="#70a9ff", width=3), name=f"AUC {meta.get('roc_auc',0):.3f}"))
-            fig.add_trace(go.Scatter(x=[0,1], y=[0,1], mode="lines", line=dict(color="#526473", dash="dash"), showlegend=False))
-            fig.update_layout(template="plotly_dark", height=360, xaxis_title="False Positive Rate", yaxis_title="True Positive Rate", margin=dict(l=10,r=10,t=25,b=10))
-            st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.info("ROC metadata is not packaged yet.")
-    with tabs[2]:
-        probs = meta.get("best_proba") if isinstance(meta, dict) else None
+            st.info("Model comparison metadata is not packaged yet. Run the deployment export/retraining step to populate it.")
+        st.markdown('<div class="analytics-note">Accuracy alone can hide class-imbalance effects. Use recall, precision, F1, ROC-AUC, the confusion matrix, and the validation-selected threshold together when reviewing this research model.</div>', unsafe_allow_html=True)
+
+    with at2:
+        d1,d2=st.columns(2)
+        with d1:
+            st.markdown('<div class="section-title">Confusion matrix <span>held-out evaluation</span></div>',unsafe_allow_html=True)
+            if cm is not None and cm.shape==(2,2):
+                fig=go.Figure(go.Heatmap(z=cm,x=["Predicted · Non-Seizure","Predicted · Seizure"],y=["Actual · Non-Seizure","Actual · Seizure"],colorscale=[[0,"#102d35"],[.5,"#167a78"],[1,"#35e0c2"]],text=cm,texttemplate="%{text}",textfont=dict(size=18),hovertemplate="%{y}<br>%{x}<br>Count: %{z}<extra></extra>"))
+                fig.update_layout(template="plotly_dark",height=350,margin=dict(l=10,r=10,t=20,b=10),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="#071b22")
+                st.plotly_chart(fig,use_container_width=True,config={"displaylogo":False})
+            else: st.info("Confusion-matrix metadata is not available.")
+        with d2:
+            st.markdown('<div class="section-title">ROC curve <span>discrimination view</span></div>',unsafe_allow_html=True)
+            fpr=meta.get("fpr") if isinstance(meta,dict) else None; tpr=meta.get("tpr") if isinstance(meta,dict) else None
+            if fpr is not None and tpr is not None:
+                fig=go.Figure(); fig.add_trace(go.Scatter(x=fpr,y=tpr,mode="lines",line=dict(color="#56d9ff",width=3),name=f"AUC {roc_auc:.3f}")); fig.add_trace(go.Scatter(x=[0,1],y=[0,1],mode="lines",line=dict(color="#6b858b",dash="dash"),showlegend=False))
+                fig.update_layout(template="plotly_dark",height=350,xaxis_title="False positive rate",yaxis_title="True positive rate",margin=dict(l=10,r=10,t=20,b=10),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="#071b22",legend=dict(orientation="h"))
+                st.plotly_chart(fig,use_container_width=True,config={"displaylogo":False})
+            else: st.info("ROC metadata is not available.")
+        probs=meta.get("best_proba") if isinstance(meta,dict) else None
         if probs is not None:
-            fig = go.Figure(go.Histogram(x=np.asarray(probs), nbinsx=35, marker_color="#4fd7ff"))
-            fig.update_layout(template="plotly_dark", height=360, xaxis_title="Seizure probability", yaxis_title="Count", margin=dict(l=10,r=10,t=25,b=10))
-            st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.info("Probability metadata is not packaged yet.")
-    with tabs[3]:
-        imp = meta.get("feature_importances") if isinstance(meta, dict) else None
+            st.markdown('<div class="section-title">Prediction probability distribution <span>held-out windows</span></div>',unsafe_allow_html=True)
+            fig=go.Figure(go.Histogram(x=np.asarray(probs),nbinsx=35,marker_color="#9b8cff",opacity=.85)); fig.update_layout(template="plotly_dark",height=300,xaxis_title="Seizure probability",yaxis_title="Window count",margin=dict(l=10,r=10,t=20,b=10),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="#071b22")
+            st.plotly_chart(fig,use_container_width=True,config={"displaylogo":False})
+        if not validation_df.empty:
+            with st.expander("Validation model-selection metrics"):
+                st.dataframe(validation_df,use_container_width=True,hide_index=True)
+
+    with at3:
+        imp=meta.get("feature_importances") if isinstance(meta,dict) else None
         if imp is not None:
-            imp = np.asarray(imp)
-            idx = np.argsort(imp)[::-1][:20]
-            fig = go.Figure(go.Bar(x=imp[idx][::-1], y=[f"X{i+1}" for i in idx][::-1], orientation="h", marker_color="#ffc766"))
-            fig.update_layout(template="plotly_dark", height=500, xaxis_title="Importance", yaxis_title="EEG feature", margin=dict(l=10,r=10,t=25,b=10))
-            st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.info("Feature importance is available when the selected model exposes feature_importances_.")
+            imp=np.asarray(imp); idx=np.argsort(imp)[::-1][:20]
+            fig=go.Figure(go.Bar(x=imp[idx][::-1],y=[f"X{i+1}" for i in idx][::-1],orientation="h",marker_color="#ffca6b",text=[f"{v:.4f}" for v in imp[idx][::-1]],textposition="outside"))
+            fig.update_layout(template="plotly_dark",height=560,xaxis_title="Importance",yaxis_title="EEG feature",margin=dict(l=10,r=70,t=20,b=10),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="#071b22")
+            st.plotly_chart(fig,use_container_width=True,config={"displaylogo":False})
+        else: st.info("Feature importance is available when the selected model exposes feature_importances_.")
+        st.markdown('<div class="analytics-note">Feature importance is model-specific. It describes contribution within the trained estimator and should not be interpreted as a clinical biomarker by itself.</div>',unsafe_allow_html=True)
+
+    if source in ("Real seizure replay", "Real non-seizure replay"):
+        st.caption("Replay source: real 178-sample EEG windows from the same dataset family used for training. Replay label is shown for demonstration only; model prediction remains independent.")
 
 st.caption("Realtime Seizure Monitoring · Research/demo interface · Model output is not a medical diagnosis. Use appropriate clinical oversight for real-world deployment.")
