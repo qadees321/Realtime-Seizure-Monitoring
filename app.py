@@ -71,8 +71,51 @@ section[data-testid="stFileUploaderDropzone"] button:hover{background:#153b44!im
 [data-testid="stVerticalBlock"] > div{margin-bottom:6px}
 .card,.monitor-shell,.upload-shell,.analytics-hero,.analytics-grid,.top-telemetry,.alert-banner,.safe-banner{margin-bottom:18px!important}
 
-
 .analytics-hero{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;padding:18px 20px;border:1px solid #24505a;border-radius:20px;background:linear-gradient(135deg,rgba(17,48,57,.92),rgba(8,24,30,.98));margin-bottom:14px}.analytics-hero h2{margin:0;font-size:1.45rem;letter-spacing:-.02em}.analytics-hero p{margin:5px 0 0;color:#9bb5b9;font-size:.8rem}.analytics-badge{padding:7px 11px;border-radius:999px;background:rgba(53,224,194,.10);border:1px solid rgba(53,224,194,.28);color:#75f0d5;font-size:.7rem;font-weight:800;white-space:nowrap}.analytics-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0 16px}.analytics-stat{padding:14px;border-radius:16px;background:linear-gradient(145deg,#0d252d,#091a21);border:1px solid #21454e}.analytics-stat .n{font-size:1.55rem;font-weight:900}.analytics-stat .l{font-size:.66rem;text-transform:uppercase;letter-spacing:.11em;color:#7f9ca1;margin-top:3px}.analytics-stat .s{font-size:.72rem;color:#9bb0b4;margin-top:5px}.upload-shell{padding:18px;border:1px solid #24505a;border-radius:20px;background:linear-gradient(145deg,rgba(13,35,43,.96),rgba(7,20,26,.99));box-shadow:0 14px 40px rgba(0,0,0,.16);margin:8px 0 14px}.upload-title{font-size:1.08rem;font-weight:900}.upload-sub{font-size:.76rem;color:#8fa9ad;margin-top:3px}.mini-chip{display:inline-block;padding:4px 8px;border-radius:8px;background:#103039;border:1px solid #24535d;color:#9cefe1;font-size:.67rem;margin-right:5px}.analytics-note{padding:10px 13px;border-left:3px solid var(--teal);background:rgba(53,224,194,.055);border-radius:8px;color:#9fb6b9;font-size:.75rem}
+
+/* Styled HTML Metrics Table */
+.metrics-card {
+  background: linear-gradient(145deg, rgba(13,31,38,.97), rgba(7,19,25,.99));
+  border: 1px solid #21414a;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  margin-bottom: 16px;
+  padding: 4px;
+}
+.metrics-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: system-ui, -apple-system, sans-serif;
+  text-align: left;
+}
+.metrics-table th {
+  color: #8ea9ad;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 12px 16px;
+  border-bottom: 1px solid #21414a;
+  background-color: rgba(16, 38, 45, 0.4);
+}
+.metrics-table td {
+  color: #dff8f5;
+  font-size: 0.875rem;
+  padding: 13px 16px;
+  border-bottom: 1px solid #173239;
+  transition: background-color 0.15s ease;
+}
+.metrics-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.metrics-table tbody tr:hover td {
+  background-color: rgba(53, 224, 194, 0.06);
+}
+.metrics-table .model-name {
+  color: #35e0c2;
+  font-weight: 700;
+}
+
 @media(max-width:1100px){.analytics-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:900px){.hero h1{font-size:1.8rem}.top-telemetry{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
@@ -492,7 +535,7 @@ def live_command_center():
         st.plotly_chart(gauge, use_container_width=True, config={"displaylogo": False})
         st.markdown(f'<div class="card"><span class="session-tag">{st.session_state.patient_id}</span><span class="session-tag">{source}</span><p class="small-muted" style="margin:10px 0 0">{st.session_state.session_note}</p></div>', unsafe_allow_html=True)
 
-    # Full-width current-window trace: keep the original compact height, widen horizontally.
+    # Full-width current-window trace
     if st.session_state.last_signal is not None:
         eeg = np.asarray(st.session_state.last_signal, dtype=float)
         ex = np.arange(1, len(eeg) + 1)
@@ -528,7 +571,7 @@ def live_command_center():
 
 live_command_center()
 
-# Analytics remains outside the live fragment so it does not redraw every 700 ms.
+# Analytics section
 with st.expander("📊 Model analytics", expanded=False):
     results_df = pd.DataFrame(meta.get("results_df", [])) if isinstance(meta, dict) and meta.get("results_df") is not None else pd.DataFrame()
     validation_df = pd.DataFrame(meta.get("validation_results_df", [])) if isinstance(meta, dict) and meta.get("validation_results_df") is not None else pd.DataFrame()
@@ -548,8 +591,39 @@ with st.expander("📊 Model analytics", expanded=False):
     with at1:
         if not results_df.empty:
             display_df = results_df.copy()
-            numeric_cols = [c for c in display_df.columns if str(c).lower() in {"accuracy","precision","recall","f1","roc_auc","roc-auc","auc"}]
-            st.dataframe(display_df, use_container_width=True, hide_index=True, column_config={c: st.column_config.NumberColumn(str(c).replace("_"," ").title(), format="%.3f") for c in numeric_cols})
+            
+            # Generate custom styled HTML table
+            headers = [str(c).replace("_", " ").title() for c in display_df.columns]
+            header_html = "".join([f"<th>{h}</th>" for h in headers])
+            
+            rows_html = ""
+            for _, row in display_df.iterrows():
+                row_cells = ""
+                for col in display_df.columns:
+                    val = row[col]
+                    col_lower = str(col).lower()
+                    if col_lower in {"model", "name", "model_name"}:
+                        row_cells += f'<td class="model-name">{val}</td>'
+                    elif isinstance(val, (int, float, np.number)):
+                        row_cells += f'<td>{val:.3f}</td>'
+                    else:
+                        row_cells += f'<td>{val}</td>'
+                rows_html += f"<tr>{row_cells}</tr>"
+
+            table_html = f"""
+            <div class="metrics-card">
+              <table class="metrics-table">
+                <thead>
+                  <tr>{header_html}</tr>
+                </thead>
+                <tbody>
+                  {rows_html}
+                </tbody>
+              </table>
+            </div>
+            """
+            st.markdown(table_html, unsafe_allow_html=True)
+
             metric_options = [c for c in display_df.columns if str(c).lower() in {"accuracy","precision","recall","f1","roc_auc","roc-auc","auc"}]
             if metric_options:
                 default_idx = next((i for i,c in enumerate(metric_options) if str(c).lower()=="f1"),0)
