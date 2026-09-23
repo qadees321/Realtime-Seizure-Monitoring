@@ -16,55 +16,6 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-GITHUB_USERNAME = "qadees321"
-GITHUB_REPO_URL = f"https://github.com/qadees321/Realtime-Seizure-Monitoring"
-
-st.markdown(
-    f"""
-    <style>
-    .github-sticky-badge {{
-        position: fixed;
-        bottom: 20px;
-        right: 20px;  /* Positioned at bottom-right */
-        z-index: 999999;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        background-color: #0d1117;
-        color: #f0f6fc !important;
-        padding: 8px 16px;
-        border-radius: 30px;
-        border: 1px solid #30363d;
-        text-decoration: none !important;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        font-size: 13px;
-        font-weight: 600;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-        transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
-    }}
-    .github-sticky-badge:hover {{
-        transform: translateY(-2px);
-        border-color: #35e0c2;
-        background-color: #161b22;
-        color: #35e0c2 !important;
-    }}
-    .github-avatar-img {{
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }}
-    </style>
-
-    <a href="https://github.com/qadees321/Realtime-Seizure-Monitoring" target="_blank" rel="noopener noreferrer" class="github-sticky-badge">
-        <img src="https://github.com/qadees321.png" class="github-avatar-img" alt="qadees321 Profile" />
-        <span>View my Project</span>
-    </a>
-    """,
-    unsafe_allow_html=True
-)
-
 ROOT = Path(__file__).resolve().parent
 OUT = ROOT / "outputs"
 MODEL_PATH = OUT / "best_model.pkl"
@@ -74,6 +25,21 @@ BUNDLE_PATH = OUT / "best_model_bundle.joblib"
 DATA_DIR = ROOT / "data"
 LOCAL_DATA_PATH = DATA_DIR / "epileptic_seizure_data.csv"
 DATA_URL = "https://raw.githubusercontent.com/Jreevo/Epileptic-Seizure-Binary-Classification/master/epilepsy.csv"
+
+st.markdown(
+    """
+    <style>
+    /* Hide the Fork button in Streamlit toolbar */
+    [data-testid="stHeader"] button[title*="Fork"],
+    [data-testid="stHeader"] a[href*="fork"],
+    .stAppToolbar button:has(svg[data-icon="code-fork"]),
+    button[aria-label="Fork this app"] {
+        display: none !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 st.markdown(
     """
