@@ -59,7 +59,17 @@ section[data-testid="stSidebar"]{background:linear-gradient(180deg,#0a0f1d,#080c
 .stButton>button{border-radius:12px;border:1px solid #2b3a59;background:linear-gradient(180deg,#112a31,#0c2027);color:#f4f7ff;font-weight:800;min-height:43px;transition:.18s}.stButton>button:hover{border-color:var(--teal);background:linear-gradient(180deg,#123039,#0d252d);transform:translateY(-1px)}
 .stDownloadButton>button{border-radius:12px!important;border:1px solid #2b3a59!important;background:#111a2d!important;color:#f4f7ff!important}
 div[data-baseweb="select"]>div, .stTextInput input, .stTextArea textarea{background:#0b2027!important;border-color:#28505a!important;color:#f5f7ff!important;border-radius:11px!important}
-[data-testid="stMetric"]{background:transparent}footer{visibility:hidden}
+[data-testid="stMetric"]{background:transparent}/* Single dark clinical mode */
+html,body,[data-testid="stAppViewContainer"],[data-testid="stHeader"]{background:#071218!important;color:var(--text)!important}
+footer{visibility:hidden}
+/* Consistent breathing room between UI blocks */
+.stMarkdown,.stButton,.stDownloadButton,.stFileUploader,.stSelectbox,.stTextInput,.stTextArea,.stNumberInput,.stDataFrame,.stPlotlyChart,.stAlert,.stTabs,.stSlider,.stRadio,.stCheckbox{margin-bottom:14px!important}
+[data-testid="stVerticalBlock"] > div{margin-bottom:6px}
+.card,.monitor-shell,.upload-shell,.analytics-hero,.analytics-grid,.top-telemetry,.alert-banner,.safe-banner{margin-bottom:18px!important}
+/* Let the current EEG trace use the remaining vertical space */
+.live-current-trace{min-height:calc(100vh - 470px);display:flex;flex-direction:column;justify-content:stretch}
+.live-current-trace .js-plotly-plot,.live-current-trace .plot-container{min-height:calc(100vh - 530px)!important}
+
 
 .analytics-hero{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;padding:18px 20px;border:1px solid #24505a;border-radius:20px;background:linear-gradient(135deg,rgba(17,48,57,.92),rgba(8,24,30,.98));margin-bottom:14px}.analytics-hero h2{margin:0;font-size:1.45rem;letter-spacing:-.02em}.analytics-hero p{margin:5px 0 0;color:#9bb5b9;font-size:.8rem}.analytics-badge{padding:7px 11px;border-radius:999px;background:rgba(53,224,194,.10);border:1px solid rgba(53,224,194,.28);color:#75f0d5;font-size:.7rem;font-weight:800;white-space:nowrap}.analytics-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0 16px}.analytics-stat{padding:14px;border-radius:16px;background:linear-gradient(145deg,#0d252d,#091a21);border:1px solid #21454e}.analytics-stat .n{font-size:1.55rem;font-weight:900}.analytics-stat .l{font-size:.66rem;text-transform:uppercase;letter-spacing:.11em;color:#7f9ca1;margin-top:3px}.analytics-stat .s{font-size:.72rem;color:#9bb0b4;margin-top:5px}.upload-shell{padding:18px;border:1px solid #24505a;border-radius:20px;background:linear-gradient(145deg,rgba(13,35,43,.96),rgba(7,20,26,.99));box-shadow:0 14px 40px rgba(0,0,0,.16);margin:8px 0 14px}.upload-title{font-size:1.08rem;font-weight:900}.upload-sub{font-size:.76rem;color:#8fa9ad;margin-top:3px}.mini-chip{display:inline-block;padding:4px 8px;border-radius:8px;background:#103039;border:1px solid #24535d;color:#9cefe1;font-size:.67rem;margin-right:5px}.analytics-note{padding:10px 13px;border-left:3px solid var(--teal);background:rgba(53,224,194,.055);border-radius:8px;color:#9fb6b9;font-size:.75rem}
 @media(max-width:1100px){.analytics-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -474,21 +484,25 @@ def live_command_center():
             st.plotly_chart(fig, use_container_width=True, config={"displaylogo": False, "scrollZoom": False})
         else:
             st.info("Load an EEG source and start monitoring to populate the live waveform.")
-        if st.session_state.last_signal is not None:
-            eeg = np.asarray(st.session_state.last_signal, dtype=float)
-            ex = np.arange(1, len(eeg) + 1)
-            mini = go.Figure(go.Scatter(x=ex, y=eeg, mode="lines", line=dict(color="#4ee1b5", width=1.8), fill="tozeroy", fillcolor="rgba(78,225,181,.045)"))
-            mini.update_layout(template="plotly_dark", height=105, margin=dict(l=5,r=5,t=22,b=3), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#05131b", title=dict(text="LIVE EEG TRACE · CURRENT WINDOW", x=0.01, xanchor="left", font=dict(size=10,color="#7891a1")), xaxis=dict(showgrid=False, showticklabels=False, zeroline=False), yaxis=dict(showgrid=False, showticklabels=False, zeroline=False), showlegend=False)
-            st.plotly_chart(mini, use_container_width=True, config={"displaylogo": False})
-        else:
-            st.info("Live EEG trace will appear when a signal window is available.")
-
     with right:
         st.markdown('<div class="section-title">Signal status <span>model output</span></div>', unsafe_allow_html=True)
         gauge = go.Figure(go.Indicator(mode="gauge+number", value=prob*100, number={"suffix":"%", "font":{"size":38}}, title={"text":"Seizure probability"}, gauge={"axis":{"range":[0,100]}, "bar":{"color":"#ff5d73" if pred else "#56df9b", "thickness":.28}, "steps":[{"range":[0,threshold*100],"color":"rgba(86,223,155,.10)"},{"range":[threshold*100,100],"color":"rgba(255,93,115,.10)"}], "threshold":{"line":{"color":"#ffc45c","width":4},"value":threshold*100}}))
         gauge.update_layout(template="plotly_dark", height=270, margin=dict(l=10,r=10,t=25,b=5), paper_bgcolor="rgba(0,0,0,0)")
         st.plotly_chart(gauge, use_container_width=True, config={"displaylogo": False})
         st.markdown(f'<div class="card"><span class="session-tag">{st.session_state.patient_id}</span><span class="session-tag">{source}</span><p class="small-muted" style="margin:10px 0 0">{st.session_state.session_note}</p></div>', unsafe_allow_html=True)
+
+    # Full-width current-window trace: keep the original compact height, widen horizontally.
+    if st.session_state.last_signal is not None:
+        eeg = np.asarray(st.session_state.last_signal, dtype=float)
+        ex = np.arange(1, len(eeg) + 1)
+        mini = go.Figure(go.Scatter(x=ex, y=eeg, mode="lines", line=dict(color="#4ee1b5", width=1.8), fill="tozeroy", fillcolor="rgba(78,225,181,.045)"))
+        mini.update_layout(template="plotly_dark", height=105, margin=dict(l=5,r=5,t=22,b=3), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#05131b", title=dict(text="LIVE EEG TRACE · CURRENT WINDOW", x=0.01, xanchor="left", font=dict(size=10,color="#7891a1")), xaxis=dict(showgrid=False, showticklabels=False, zeroline=False), yaxis=dict(showgrid=False, showticklabels=False, zeroline=False), showlegend=False)
+        st.markdown('<div class="live-current-trace" style="width:100%;">', unsafe_allow_html=True)
+        st.plotly_chart(mini, use_container_width=True, config={"displaylogo": False})
+        st.markdown('</div>', unsafe_allow_html=True)
+    else:
+        st.info("Live EEG trace will appear when a signal window is available.")
+
         if st.session_state.alerts:
             latest = st.session_state.alerts[0]
             st.markdown(f'<div class="card" style="margin-top:10px;border-color:rgba(255,93,115,.35)"><div class="label">Latest alert event</div><div class="metric" style="color:#ff7a8b">{latest["probability"]:.1%}</div><div class="sub">{latest["time"]} · {latest["source"]}</div></div>', unsafe_allow_html=True)
