@@ -9,15 +9,6 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-# Hide Streamlit main menu, header, and footer
-st.markdown("""
-    <style>
-    #MainMenu {visibility: hidden;}
-    header {visibility: hidden;}
-    footer {visibility: hidden;}
-    </style>
-    """, unsafe_allow_html=True)
-
 st.set_page_config(
     page_title="Realtime Seizure Monitoring",
     page_icon="🏥",
@@ -40,7 +31,7 @@ st.markdown(
 <style>
 :root{--bg:#071218;--panel:#0b1b22;--panel2:#10262d;--line:#21414a;--text:#f2fbfa;--muted:#8ea9ad;--teal:#35e0c2;--cyan:#56d9ff;--mint:#67e8b3;--rose:#ff6b7a;--amber:#ffca6b;--blue:#7eb6ff;--purple:#9b8cff}
 .stApp{background:radial-gradient(circle at 85% -10%,rgba(53,224,194,.18),transparent 34%),radial-gradient(circle at 10% 0%,rgba(86,217,255,.12),transparent 28%),linear-gradient(135deg,#071218 0%,#08161d 52%,#061017 100%);color:var(--text)}
-.block-container{max-width:1540px;padding:1.15rem 1.7rem 3rem}
+.block-container{max-width:1540px;padding:.25rem 1.7rem 2.2rem}
 section[data-testid="stSidebar"]{background:linear-gradient(180deg,#0a0f1d,#080c16);border-right:1px solid #1d2940}
 .hero{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:26px 29px;border:1px solid #293552;border-radius:24px;background:linear-gradient(135deg,rgba(17,25,44,.97),rgba(10,14,27,.98));box-shadow:0 22px 70px rgba(0,0,0,.30)}
 .hero h1{margin:0;font-size:2.65rem;letter-spacing:-.055em;background:linear-gradient(90deg,#fff,var(--cyan),var(--teal));-webkit-background-clip:text;background-clip:text;color:transparent}.hero p{margin:.45rem 0 0;color:#9aa8bf}.kicker{font-size:.7rem;letter-spacing:.16em;font-weight:850;color:var(--cyan)}
@@ -62,13 +53,23 @@ div[data-baseweb="select"]>div, .stTextInput input, .stTextArea textarea{backgro
 [data-testid="stMetric"]{background:transparent}/* Single dark clinical mode */
 html,body,[data-testid="stAppViewContainer"],[data-testid="stHeader"]{background:#071218!important;color:var(--text)!important}
 footer{visibility:hidden}
+/* True single dark mode: uploader and native controls */
+section[data-testid="stFileUploaderDropzone"]{background:#0b2027!important;border:1px solid #28505a!important;border-radius:12px!important}
+section[data-testid="stFileUploaderDropzone"] *{color:#dff8f5!important}
+section[data-testid="stFileUploaderDropzone"] svg{fill:#67e8d0!important;color:#67e8d0!important}
+section[data-testid="stFileUploaderDropzone"] button{background:#102d35!important;color:#f2fbfa!important;border:1px solid #3b6872!important}
+section[data-testid="stFileUploaderDropzone"] button:hover{background:#153b44!important;border-color:#35e0c2!important}
+[data-testid="stFileUploader"] small{color:#8ea9ad!important}
+[data-testid="stFileUploader"] label{color:#dff8f5!important}
+.stFileUploader{color:#dff8f5!important}
+/* Compact full-width current EEG trace with no artificial vertical gap */
+.live-current-trace{width:100%!important;margin-top:0!important;padding-top:0!important;min-height:0!important}
+.live-current-trace .stPlotlyChart{margin-top:0!important;margin-bottom:0!important}
+
 /* Consistent breathing room between UI blocks */
 .stMarkdown,.stButton,.stDownloadButton,.stFileUploader,.stSelectbox,.stTextInput,.stTextArea,.stNumberInput,.stDataFrame,.stPlotlyChart,.stAlert,.stTabs,.stSlider,.stRadio,.stCheckbox{margin-bottom:14px!important}
 [data-testid="stVerticalBlock"] > div{margin-bottom:6px}
 .card,.monitor-shell,.upload-shell,.analytics-hero,.analytics-grid,.top-telemetry,.alert-banner,.safe-banner{margin-bottom:18px!important}
-/* Let the current EEG trace use the remaining vertical space */
-.live-current-trace{min-height:calc(100vh - 470px);display:flex;flex-direction:column;justify-content:stretch}
-.live-current-trace .js-plotly-plot,.live-current-trace .plot-container{min-height:calc(100vh - 530px)!important}
 
 
 .analytics-hero{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;padding:18px 20px;border:1px solid #24505a;border-radius:20px;background:linear-gradient(135deg,rgba(17,48,57,.92),rgba(8,24,30,.98));margin-bottom:14px}.analytics-hero h2{margin:0;font-size:1.45rem;letter-spacing:-.02em}.analytics-hero p{margin:5px 0 0;color:#9bb5b9;font-size:.8rem}.analytics-badge{padding:7px 11px;border-radius:999px;background:rgba(53,224,194,.10);border:1px solid rgba(53,224,194,.28);color:#75f0d5;font-size:.7rem;font-weight:800;white-space:nowrap}.analytics-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0 16px}.analytics-stat{padding:14px;border-radius:16px;background:linear-gradient(145deg,#0d252d,#091a21);border:1px solid #21454e}.analytics-stat .n{font-size:1.55rem;font-weight:900}.analytics-stat .l{font-size:.66rem;text-transform:uppercase;letter-spacing:.11em;color:#7f9ca1;margin-top:3px}.analytics-stat .s{font-size:.72rem;color:#9bb0b4;margin-top:5px}.upload-shell{padding:18px;border:1px solid #24505a;border-radius:20px;background:linear-gradient(145deg,rgba(13,35,43,.96),rgba(7,20,26,.99));box-shadow:0 14px 40px rgba(0,0,0,.16);margin:8px 0 14px}.upload-title{font-size:1.08rem;font-weight:900}.upload-sub{font-size:.76rem;color:#8fa9ad;margin-top:3px}.mini-chip{display:inline-block;padding:4px 8px;border-radius:8px;background:#103039;border:1px solid #24535d;color:#9cefe1;font-size:.67rem;margin-right:5px}.analytics-note{padding:10px 13px;border-left:3px solid var(--teal);background:rgba(53,224,194,.055);border-radius:8px;color:#9fb6b9;font-size:.75rem}
