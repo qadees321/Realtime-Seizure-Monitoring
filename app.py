@@ -2,7 +2,6 @@ from pathlib import Path
 from datetime import datetime, timezone
 import json
 import io
-import base64
 
 import joblib
 import numpy as np
@@ -15,12 +14,7 @@ st.set_page_config(
     page_icon="🏥",
     layout="wide",
     initial_sidebar_state="expanded",
-    menu_items={"Get help": None, "Report a bug": None, "About": None},
 )
-try:
-    st.set_option("client.toolbarMode", "minimal")
-except Exception:
-    pass
 
 ROOT = Path(__file__).resolve().parent
 OUT = ROOT / "outputs"
@@ -29,8 +23,6 @@ SCALER_PATH = OUT / "scaler.pkl"
 META_PATH = OUT / "metadata.joblib"
 BUNDLE_PATH = OUT / "best_model_bundle.joblib"
 DATA_DIR = ROOT / "data"
-ASSETS_DIR = ROOT / "assets"
-PROFILE_PATH = ASSETS_DIR / "profile.png"
 LOCAL_DATA_PATH = DATA_DIR / "epileptic_seizure_data.csv"
 DATA_URL = "https://raw.githubusercontent.com/Jreevo/Epileptic-Seizure-Binary-Classification/master/epilepsy.csv"
 
@@ -58,27 +50,16 @@ section[data-testid="stSidebar"]{background:linear-gradient(180deg,#0a0f1d,#080c
 .stButton>button{border-radius:12px;border:1px solid #2b3a59;background:linear-gradient(180deg,#112a31,#0c2027);color:#f4f7ff;font-weight:800;min-height:43px;transition:.18s}.stButton>button:hover{border-color:var(--teal);background:linear-gradient(180deg,#123039,#0d252d);transform:translateY(-1px)}
 .stDownloadButton>button{border-radius:12px!important;border:1px solid #2b3a59!important;background:#111a2d!important;color:#f4f7ff!important}
 div[data-baseweb="select"]>div, .stTextInput input, .stTextArea textarea{background:#0b2027!important;border-color:#28505a!important;color:#f5f7ff!important;border-radius:11px!important}
-[data-testid="stMetric"]{background:transparent}/* Single dark clinical mode */
+[data-testid="stMetric"]{background:transparent}
+button[data-baseweb="tab"]{color:#8ea9ad!important;font-weight:800!important}
+button[data-baseweb="tab"][aria-selected="true"]{color:#67e8d0!important;border-bottom-color:#35e0c2!important}
+/* Single dark clinical mode */
 html,body,[data-testid="stAppViewContainer"],[data-testid="stHeader"]{background:#071218!important;color:var(--text)!important}
 footer{visibility:hidden}
-/* App chrome */
-[data-testid="stToolbar"], [data-testid="stDecoration"], [data-testid="stStatusWidget"]{display:none!important}
-header[data-testid="stHeader"]{background:transparent!important}
-/* Profile */
-.profile-wrap{display:flex;align-items:center;gap:12px;padding:10px 2px 15px;margin-bottom:14px;border-bottom:1px solid #203844}
-.profile-photo{width:54px;height:54px;border-radius:50%;object-fit:cover;border:2px solid #35e0c2;box-shadow:0 0 0 4px rgba(53,224,194,.08),0 8px 25px rgba(0,0,0,.28)}
-.profile-avatar{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#12343d,#0b1c24);border:2px solid #35e0c2;color:#dff8f5;font-size:1.05rem;font-weight:900}
-.profile-name{font-weight:900;color:#f3fbfa;font-size:.94rem}.profile-role{color:#7fa2a9;font-size:.69rem;margin-top:2px}
-/* Model comparison */
-.model-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:4px 0 18px}
-.model-card{position:relative;overflow:hidden;padding:16px;border-radius:18px;background:linear-gradient(145deg,#0e2931,#091a21);border:1px solid #24505a;box-shadow:0 12px 35px rgba(0,0,0,.16)}
-.model-card:before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,#35e0c2,#56d9ff,#9b8cff)}
-.model-name{font-size:1rem;font-weight:900;color:#f2fbfa}.model-kind{font-size:.67rem;color:#789aa1;text-transform:uppercase;letter-spacing:.1em;margin-top:2px}
-.model-score{display:flex;align-items:baseline;gap:6px;margin-top:13px}.model-score .big{font-size:1.9rem;font-weight:950;color:#75f0d5}.model-score .caption{font-size:.68rem;color:#8ea9ad}
-.model-mini-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-top:12px}.model-mini{padding:8px 9px;border-radius:10px;background:rgba(255,255,255,.025);border:1px solid #193c45}.model-mini .v{font-size:.9rem;font-weight:850;color:#dff8f5}.model-mini .l{font-size:.61rem;color:#789aa1;margin-top:1px;text-transform:uppercase;letter-spacing:.07em}
-.comparison-panel{padding:17px;border:1px solid #24505a;border-radius:20px;background:linear-gradient(145deg,rgba(10,30,37,.98),rgba(6,18,24,.99));margin-bottom:18px}
-.comparison-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:15px;margin-bottom:12px}.comparison-heading h3{margin:0;font-size:1.05rem}.comparison-heading p{margin:3px 0 0;color:#87a4a9;font-size:.72rem}.comparison-pill{padding:6px 10px;border-radius:999px;border:1px solid #28505a;color:#9cefe1;background:rgba(53,224,194,.06);font-size:.65rem;font-weight:800;white-space:nowrap}
-@media(max-width:900px){.model-summary{grid-template-columns:1fr}}
+[data-testid="stHeader"]{display:none!important;height:0!important;min-height:0!important}
+[data-testid="stToolbar"]{display:none!important}
+#MainMenu{display:none!important}
+.stAppDeployButton{display:none!important}
 
 /* True single dark mode: uploader and native controls */
 section[data-testid="stFileUploaderDropzone"]{background:#0b2027!important;border:1px solid #28505a!important;border-radius:12px!important}
@@ -93,6 +74,15 @@ section[data-testid="stFileUploaderDropzone"] button:hover{background:#153b44!im
 .live-current-trace{width:100%!important;margin-top:0!important;padding-top:0!important;min-height:0!important}
 .live-current-trace .stPlotlyChart{margin-top:0!important;margin-bottom:0!important}
 
+/* Profile / operator card */
+.profile-card{display:flex;align-items:center;gap:12px;padding:12px 10px 14px;margin-bottom:14px;border-bottom:1px solid #1e3440}
+.profile-avatar{width:58px;height:58px;border-radius:16px;object-fit:cover;border:1px solid #2d5660;box-shadow:0 8px 24px rgba(0,0,0,.25);background:#102a31}
+.profile-name{font-weight:850;color:#f2fbfa;font-size:.9rem}.profile-role{font-size:.68rem;color:#8ea9ad;margin-top:2px}
+.model-card{padding:17px;border:1px solid #244a54;border-radius:18px;background:linear-gradient(145deg,#0d252d,#081920);box-shadow:0 12px 30px rgba(0,0,0,.16);height:100%}
+.model-card.selected{border-color:#35e0c2;box-shadow:0 0 0 1px rgba(53,224,194,.12),0 14px 34px rgba(0,0,0,.22)}
+.model-card-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:13px}.model-name{font-size:1rem;font-weight:900;color:#f2fbfa}.model-badge{font-size:.62rem;padding:4px 7px;border-radius:999px;color:#76edd9;background:rgba(53,224,194,.08);border:1px solid rgba(53,224,194,.25)}
+.model-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.model-metric{padding:9px 10px;border-radius:11px;background:#091a21;border:1px solid #193840}.model-metric .v{font-size:1rem;font-weight:900}.model-metric .l{font-size:.59rem;text-transform:uppercase;letter-spacing:.08em;color:#7f9ca1;margin-top:2px}
+.comparison-note{padding:12px 14px;border:1px solid #23464f;border-radius:13px;background:rgba(53,224,194,.045);color:#9fb6b9;font-size:.74rem;margin-top:12px}
 /* Consistent breathing room between UI blocks */
 .stMarkdown,.stButton,.stDownloadButton,.stFileUploader,.stSelectbox,.stTextInput,.stTextArea,.stNumberInput,.stDataFrame,.stPlotlyChart,.stAlert,.stTabs,.stSlider,.stRadio,.stCheckbox{margin-bottom:14px!important}
 [data-testid="stVerticalBlock"] > div{margin-bottom:6px}
@@ -170,13 +160,13 @@ if model is None or scaler is None or trained_threshold is None:
     st.stop()
 
 
-# Sidebar
-if PROFILE_PATH.exists():
-    encoded = base64.b64encode(PROFILE_PATH.read_bytes()).decode("ascii")
-    profile_html = f'<img class="profile-photo" src="data:image/png;base64,{encoded}" />'
-else:
-    profile_html = '<div class="profile-avatar">RM</div>'
-st.sidebar.markdown(f'<div class="profile-wrap">{profile_html}<div><div class="profile-name">Realtime Seizure Monitoring</div><div class="profile-role">EEG Research • Clinical Analytics</div></div></div>', unsafe_allow_html=True)
+# Sidebar — load the GitHub account avatar directly; no local/manual image is required.
+GITHUB_USERNAME = os.getenv("GITHUB_USERNAME", "qadees321")
+GITHUB_AVATAR_URL = f"https://github.com/{GITHUB_USERNAME}.png"
+st.sidebar.markdown(
+    f'''<div class="profile-card"><img class="profile-avatar" src="{GITHUB_AVATAR_URL}" alt="GitHub profile image"/><div><div class="profile-name">Realtime Seizure Monitoring</div><div class="profile-role">EEG Research Control Room</div></div></div>''',
+    unsafe_allow_html=True,
+)
 st.sidebar.markdown("## 🏥 Control Room")
 st.sidebar.caption("Realtime Seizure Monitoring")
 patient_id = st.sidebar.text_input("Patient / Case ID", value=st.session_state.patient_id)
@@ -579,39 +569,41 @@ with st.expander("📊 Model analytics", expanded=False):
 
     at1, at2, at3 = st.tabs(["🏆 Model comparison", "🧪 Diagnostics", "🧬 Feature signals"])
     with at1:
+        st.markdown('<div class="section-title">Model comparison <span>all available validation metrics</span></div>', unsafe_allow_html=True)
         if not results_df.empty:
             display_df = results_df.copy()
             model_col = next((c for c in display_df.columns if str(c).lower() in {"model","name","model_name"}), None)
-            metric_aliases = {"accuracy":"Accuracy", "precision":"Precision", "recall":"Recall", "f1":"F1", "roc_auc":"ROC-AUC", "roc-auc":"ROC-AUC", "auc":"ROC-AUC"}
-            metric_cols = [c for c in display_df.columns if str(c).lower() in metric_aliases and pd.api.types.is_numeric_dtype(display_df[c])]
-            st.markdown('''<div class="comparison-panel"><div class="comparison-heading"><div><h3>Model comparison cockpit</h3><p>Side-by-side view of the packaged model candidates across the main validation measures.</p></div><div class="comparison-pill">ALL METRICS · NO SELECTOR</div></div></div>''', unsafe_allow_html=True)
+            metric_names = ["accuracy","precision","recall","f1","roc_auc","roc-auc","auc"]
+            metric_cols = [c for c in display_df.columns if str(c).lower() in metric_names]
             if model_col is not None and metric_cols:
-                cards=[]
+                cards = st.columns(min(3, max(1, len(display_df))))
+                for i, (_, row) in enumerate(display_df.iterrows()):
+                    col = cards[i % len(cards)]
+                    model_name = str(row[model_col])
+                    is_selected = model_name == str(trained_model_name)
+                    badge = "DEPLOYED" if is_selected else "VALIDATION"
+                    metrics_html = ""
+                    for mc in metric_cols:
+                        val = pd.to_numeric(row[mc], errors="coerce")
+                        if pd.notna(val):
+                            metrics_html += f'<div class="model-metric"><div class="v">{float(val):.3f}</div><div class="l">{str(mc).replace("_"," ").upper()}</div></div>'
+                    cls = "model-card selected" if is_selected else "model-card"
+                    col.markdown(f'<div class="{cls}"><div class="model-card-head"><div class="model-name">{model_name}</div><div class="model-badge">{badge}</div></div><div class="model-metrics">{metrics_html}</div></div>', unsafe_allow_html=True)
+                long_rows=[]
                 for _, row in display_df.iterrows():
-                    name=str(row[model_col]); values={}
-                    for c in metric_cols:
-                        val=pd.to_numeric(pd.Series([row[c]]),errors="coerce").iloc[0]
-                        if pd.notna(val): values[metric_aliases[str(c).lower()]]=float(val)
-                    primary=values.get("F1",values.get("ROC-AUC",values.get("Accuracy",np.nan)))
-                    mini="".join(f'<div class="model-mini"><div class="v">{v:.3f}</div><div class="l">{k}</div></div>' for k,v in list(values.items())[:4])
-                    cards.append(f'<div class="model-card"><div class="model-name">{name}</div><div class="model-kind">Validation candidate</div><div class="model-score"><span class="big">{primary:.3f}</span><span class="caption">headline score</span></div><div class="model-mini-grid">{mini}</div></div>')
-                st.markdown('<div class="model-summary">'+''.join(cards)+'</div>',unsafe_allow_html=True)
-                rows=[]
-                for _, row in display_df.iterrows():
-                    for c in metric_cols:
-                        val=pd.to_numeric(pd.Series([row[c]]),errors="coerce").iloc[0]
-                        if pd.notna(val): rows.append({"Model":str(row[model_col]),"Metric":metric_aliases[str(c).lower()],"Value":float(val)})
-                chart_df=pd.DataFrame(rows)
-                if not chart_df.empty:
+                    for mc in metric_cols:
+                        val=pd.to_numeric(row[mc],errors="coerce")
+                        if pd.notna(val):
+                            long_rows.append({"Model":str(row[model_col]),"Metric":str(mc).replace("_"," ").upper(),"Value":float(val)})
+                if long_rows:
+                    plot_df=pd.DataFrame(long_rows)
                     fig=go.Figure()
-                    order=[m for m in ["Accuracy","Precision","Recall","F1","ROC-AUC"] if m in chart_df["Metric"].unique()]
-                    for metric in order:
-                        sub=chart_df[chart_df["Metric"]==metric]
-                        fig.add_trace(go.Bar(x=sub["Model"],y=sub["Value"],name=metric,text=[f"{v:.3f}" for v in sub["Value"]],textposition="outside"))
-                    fig.update_layout(template="plotly_dark",height=410,barmode="group",yaxis=dict(title="Validation score",range=[0,1.08],gridcolor="#17383f"),xaxis=dict(title="Model"),margin=dict(l=10,r=10,t=25,b=10),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="#071b22",legend=dict(orientation="h",y=1.08,x=0),hovermode="x unified")
+                    for metric in plot_df["Metric"].unique():
+                        part=plot_df[plot_df["Metric"]==metric]
+                        fig.add_trace(go.Bar(x=part["Model"],y=part["Value"],name=metric))
+                    fig.update_layout(template="plotly_dark",barmode="group",height=390,yaxis=dict(title="Score",range=[0,1.05],gridcolor="#17383f"),xaxis=dict(title="Model"),margin=dict(l=10,r=10,t=35,b=10),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="#071b22",legend=dict(orientation="h",y=1.08,x=0))
                     st.plotly_chart(fig,use_container_width=True,config={"displaylogo":False})
-                st.markdown('<div class="analytics-note">All available validation measures are shown together. The previous “Compare metric” selector has been removed.</div>',unsafe_allow_html=True)
-                st.dataframe(display_df,use_container_width=True,hide_index=True,column_config={c:st.column_config.NumberColumn(metric_aliases.get(str(c).lower(),str(c).replace("_"," ").title()),format="%.3f") for c in metric_cols})
+                st.markdown('<div class="comparison-note">The cards and grouped chart show the available validation metrics side by side. The deployed model is marked <b>DEPLOYED</b>; no single metric is selected or used as an arbitrary comparison control.</div>', unsafe_allow_html=True)
             else:
                 st.dataframe(display_df,use_container_width=True,hide_index=True)
         else:
