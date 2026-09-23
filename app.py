@@ -2,6 +2,7 @@ from pathlib import Path
 from datetime import datetime, timezone
 import json
 import io
+import base64
 
 import joblib
 import numpy as np
@@ -14,7 +15,12 @@ st.set_page_config(
     page_icon="🏥",
     layout="wide",
     initial_sidebar_state="expanded",
+    menu_items={"Get help": None, "Report a bug": None, "About": None},
 )
+try:
+    st.set_option("client.toolbarMode", "minimal")
+except Exception:
+    pass
 
 ROOT = Path(__file__).resolve().parent
 OUT = ROOT / "outputs"
@@ -23,6 +29,8 @@ SCALER_PATH = OUT / "scaler.pkl"
 META_PATH = OUT / "metadata.joblib"
 BUNDLE_PATH = OUT / "best_model_bundle.joblib"
 DATA_DIR = ROOT / "data"
+ASSETS_DIR = ROOT / "assets"
+PROFILE_PATH = ASSETS_DIR / "profile.png"
 LOCAL_DATA_PATH = DATA_DIR / "epileptic_seizure_data.csv"
 DATA_URL = "https://raw.githubusercontent.com/Jreevo/Epileptic-Seizure-Binary-Classification/master/epilepsy.csv"
 
@@ -53,6 +61,25 @@ div[data-baseweb="select"]>div, .stTextInput input, .stTextArea textarea{backgro
 [data-testid="stMetric"]{background:transparent}/* Single dark clinical mode */
 html,body,[data-testid="stAppViewContainer"],[data-testid="stHeader"]{background:#071218!important;color:var(--text)!important}
 footer{visibility:hidden}
+/* App chrome */
+[data-testid="stToolbar"], [data-testid="stDecoration"], [data-testid="stStatusWidget"]{display:none!important}
+header[data-testid="stHeader"]{background:transparent!important}
+/* Profile */
+.profile-wrap{display:flex;align-items:center;gap:12px;padding:10px 2px 15px;margin-bottom:14px;border-bottom:1px solid #203844}
+.profile-photo{width:54px;height:54px;border-radius:50%;object-fit:cover;border:2px solid #35e0c2;box-shadow:0 0 0 4px rgba(53,224,194,.08),0 8px 25px rgba(0,0,0,.28)}
+.profile-avatar{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#12343d,#0b1c24);border:2px solid #35e0c2;color:#dff8f5;font-size:1.05rem;font-weight:900}
+.profile-name{font-weight:900;color:#f3fbfa;font-size:.94rem}.profile-role{color:#7fa2a9;font-size:.69rem;margin-top:2px}
+/* Model comparison */
+.model-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:4px 0 18px}
+.model-card{position:relative;overflow:hidden;padding:16px;border-radius:18px;background:linear-gradient(145deg,#0e2931,#091a21);border:1px solid #24505a;box-shadow:0 12px 35px rgba(0,0,0,.16)}
+.model-card:before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,#35e0c2,#56d9ff,#9b8cff)}
+.model-name{font-size:1rem;font-weight:900;color:#f2fbfa}.model-kind{font-size:.67rem;color:#789aa1;text-transform:uppercase;letter-spacing:.1em;margin-top:2px}
+.model-score{display:flex;align-items:baseline;gap:6px;margin-top:13px}.model-score .big{font-size:1.9rem;font-weight:950;color:#75f0d5}.model-score .caption{font-size:.68rem;color:#8ea9ad}
+.model-mini-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;margin-top:12px}.model-mini{padding:8px 9px;border-radius:10px;background:rgba(255,255,255,.025);border:1px solid #193c45}.model-mini .v{font-size:.9rem;font-weight:850;color:#dff8f5}.model-mini .l{font-size:.61rem;color:#789aa1;margin-top:1px;text-transform:uppercase;letter-spacing:.07em}
+.comparison-panel{padding:17px;border:1px solid #24505a;border-radius:20px;background:linear-gradient(145deg,rgba(10,30,37,.98),rgba(6,18,24,.99));margin-bottom:18px}
+.comparison-heading{display:flex;justify-content:space-between;align-items:flex-end;gap:15px;margin-bottom:12px}.comparison-heading h3{margin:0;font-size:1.05rem}.comparison-heading p{margin:3px 0 0;color:#87a4a9;font-size:.72rem}.comparison-pill{padding:6px 10px;border-radius:999px;border:1px solid #28505a;color:#9cefe1;background:rgba(53,224,194,.06);font-size:.65rem;font-weight:800;white-space:nowrap}
+@media(max-width:900px){.model-summary{grid-template-columns:1fr}}
+
 /* True single dark mode: uploader and native controls */
 section[data-testid="stFileUploaderDropzone"]{background:#0b2027!important;border:1px solid #28505a!important;border-radius:12px!important}
 section[data-testid="stFileUploaderDropzone"] *{color:#dff8f5!important}
@@ -144,6 +171,12 @@ if model is None or scaler is None or trained_threshold is None:
 
 
 # Sidebar
+if PROFILE_PATH.exists():
+    encoded = base64.b64encode(PROFILE_PATH.read_bytes()).decode("ascii")
+    profile_html = f'<img class="profile-photo" src="data:image/png;base64,{encoded}" />'
+else:
+    profile_html = '<div class="profile-avatar">RM</div>'
+st.sidebar.markdown(f'<div class="profile-wrap">{profile_html}<div><div class="profile-name">Realtime Seizure Monitoring</div><div class="profile-role">EEG Research • Clinical Analytics</div></div></div>', unsafe_allow_html=True)
 st.sidebar.markdown("## 🏥 Control Room")
 st.sidebar.caption("Realtime Seizure Monitoring")
 patient_id = st.sidebar.text_input("Patient / Case ID", value=st.session_state.patient_id)
@@ -548,21 +581,41 @@ with st.expander("📊 Model analytics", expanded=False):
     with at1:
         if not results_df.empty:
             display_df = results_df.copy()
-            numeric_cols = [c for c in display_df.columns if str(c).lower() in {"accuracy","precision","recall","f1","roc_auc","roc-auc","auc"}]
-            st.dataframe(display_df, use_container_width=True, hide_index=True, column_config={c: st.column_config.NumberColumn(str(c).replace("_"," ").title(), format="%.3f") for c in numeric_cols})
-            metric_options = [c for c in display_df.columns if str(c).lower() in {"accuracy","precision","recall","f1","roc_auc","roc-auc","auc"}]
-            if metric_options:
-                default_idx = next((i for i,c in enumerate(metric_options) if str(c).lower()=="f1"),0)
-                metric_col = st.selectbox("Compare metric", metric_options, index=default_idx)
-                model_col = next((c for c in display_df.columns if str(c).lower() in {"model","name","model_name"}), None)
-                if model_col is not None and metric_col in display_df.columns:
-                    plot_df=display_df[[model_col,metric_col]].dropna()
-                    fig=go.Figure(go.Bar(x=plot_df[model_col].astype(str),y=plot_df[metric_col].astype(float),marker_color="#35e0c2",text=[f"{v:.3f}" for v in plot_df[metric_col]],textposition="outside"))
-                    fig.update_layout(template="plotly_dark",height=340,yaxis=dict(title=str(metric_col).replace("_"," ").title(),range=[0,1.05],gridcolor="#17383f"),xaxis=dict(title="Model"),margin=dict(l=10,r=10,t=35,b=10),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="#071b22",showlegend=False)
+            model_col = next((c for c in display_df.columns if str(c).lower() in {"model","name","model_name"}), None)
+            metric_aliases = {"accuracy":"Accuracy", "precision":"Precision", "recall":"Recall", "f1":"F1", "roc_auc":"ROC-AUC", "roc-auc":"ROC-AUC", "auc":"ROC-AUC"}
+            metric_cols = [c for c in display_df.columns if str(c).lower() in metric_aliases and pd.api.types.is_numeric_dtype(display_df[c])]
+            st.markdown('''<div class="comparison-panel"><div class="comparison-heading"><div><h3>Model comparison cockpit</h3><p>Side-by-side view of the packaged model candidates across the main validation measures.</p></div><div class="comparison-pill">ALL METRICS · NO SELECTOR</div></div></div>''', unsafe_allow_html=True)
+            if model_col is not None and metric_cols:
+                cards=[]
+                for _, row in display_df.iterrows():
+                    name=str(row[model_col]); values={}
+                    for c in metric_cols:
+                        val=pd.to_numeric(pd.Series([row[c]]),errors="coerce").iloc[0]
+                        if pd.notna(val): values[metric_aliases[str(c).lower()]]=float(val)
+                    primary=values.get("F1",values.get("ROC-AUC",values.get("Accuracy",np.nan)))
+                    mini="".join(f'<div class="model-mini"><div class="v">{v:.3f}</div><div class="l">{k}</div></div>' for k,v in list(values.items())[:4])
+                    cards.append(f'<div class="model-card"><div class="model-name">{name}</div><div class="model-kind">Validation candidate</div><div class="model-score"><span class="big">{primary:.3f}</span><span class="caption">headline score</span></div><div class="model-mini-grid">{mini}</div></div>')
+                st.markdown('<div class="model-summary">'+''.join(cards)+'</div>',unsafe_allow_html=True)
+                rows=[]
+                for _, row in display_df.iterrows():
+                    for c in metric_cols:
+                        val=pd.to_numeric(pd.Series([row[c]]),errors="coerce").iloc[0]
+                        if pd.notna(val): rows.append({"Model":str(row[model_col]),"Metric":metric_aliases[str(c).lower()],"Value":float(val)})
+                chart_df=pd.DataFrame(rows)
+                if not chart_df.empty:
+                    fig=go.Figure()
+                    order=[m for m in ["Accuracy","Precision","Recall","F1","ROC-AUC"] if m in chart_df["Metric"].unique()]
+                    for metric in order:
+                        sub=chart_df[chart_df["Metric"]==metric]
+                        fig.add_trace(go.Bar(x=sub["Model"],y=sub["Value"],name=metric,text=[f"{v:.3f}" for v in sub["Value"]],textposition="outside"))
+                    fig.update_layout(template="plotly_dark",height=410,barmode="group",yaxis=dict(title="Validation score",range=[0,1.08],gridcolor="#17383f"),xaxis=dict(title="Model"),margin=dict(l=10,r=10,t=25,b=10),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="#071b22",legend=dict(orientation="h",y=1.08,x=0),hovermode="x unified")
                     st.plotly_chart(fig,use_container_width=True,config={"displaylogo":False})
+                st.markdown('<div class="analytics-note">All available validation measures are shown together. The previous “Compare metric” selector has been removed.</div>',unsafe_allow_html=True)
+                st.dataframe(display_df,use_container_width=True,hide_index=True,column_config={c:st.column_config.NumberColumn(metric_aliases.get(str(c).lower(),str(c).replace("_"," ").title()),format="%.3f") for c in metric_cols})
+            else:
+                st.dataframe(display_df,use_container_width=True,hide_index=True)
         else:
             st.info("Model comparison metadata is not packaged yet. Run the deployment export/retraining step to populate it.")
-        st.markdown('<div class="analytics-note">Accuracy alone can hide class-imbalance effects. Use recall, precision, F1, ROC-AUC, the confusion matrix, and the validation-selected threshold together when reviewing this research model.</div>', unsafe_allow_html=True)
 
     with at2:
         d1,d2=st.columns(2)
