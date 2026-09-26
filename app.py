@@ -2,6 +2,7 @@ from pathlib import Path
 from datetime import datetime, timezone
 import json
 import io
+import os
 
 import joblib
 import numpy as np
@@ -28,21 +29,6 @@ DATA_URL = "https://raw.githubusercontent.com/Jreevo/Epileptic-Seizure-Binary-Cl
 
 st.markdown(
     """
-    <style>
-    /* Hide the Fork button in Streamlit toolbar */
-    [data-testid="stHeader"] button[title*="Fork"],
-    [data-testid="stHeader"] a[href*="fork"],
-    .stAppToolbar button:has(svg[data-icon="code-fork"]),
-    button[aria-label="Fork this app"] {
-        display: none !important;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
-st.markdown(
-    """
 <style>
 :root{--bg:#071218;--panel:#0b1b22;--panel2:#10262d;--line:#21414a;--text:#f2fbfa;--muted:#8ea9ad;--teal:#35e0c2;--cyan:#56d9ff;--mint:#67e8b3;--rose:#ff6b7a;--amber:#ffca6b;--blue:#7eb6ff;--purple:#9b8cff}
 .stApp{background:radial-gradient(circle at 85% -10%,rgba(53,224,194,.18),transparent 34%),radial-gradient(circle at 10% 0%,rgba(86,217,255,.12),transparent 28%),linear-gradient(135deg,#071218 0%,#08161d 52%,#061017 100%);color:var(--text)}
@@ -56,7 +42,7 @@ section[data-testid="stSidebar"]{background:linear-gradient(180deg,#0a0f1d,#080c
 .metric{font-size:1.7rem;font-weight:850;line-height:1.1}.label{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}.sub{font-size:.76rem;color:#9ba9bd;margin-top:6px}.small-muted{color:var(--muted);font-size:.74rem}
 .alert-banner,.safe-banner{border-radius:18px;padding:14px 18px;margin:12px 0;border:1px solid}.alert-banner{border-color:rgba(255,102,133,.58);background:linear-gradient(90deg,rgba(255,102,133,.13),rgba(139,124,255,.06));animation:alertFlash 1s ease-in-out infinite alternate}.safe-banner{border-color:rgba(78,225,181,.32);background:linear-gradient(90deg,rgba(78,225,181,.075),rgba(79,215,255,.035))}
 @keyframes alertFlash{from{box-shadow:0 0 0 rgba(255,102,133,0)}to{box-shadow:0 0 34px rgba(255,102,133,.17)}}
-.section-title{font-size:1rem;font-weight:850;margin:4px 0 12px}.section-title span{color:var(--muted);font-size:.78rem;font-weight:500;margin-left:7px}.session-tag{display:inline-block;padding:5px 9px;border-radius:999px;background:#151f36;color:#b9c5dc;font-size:.7rem;margin-right:5px;border:1px solid #2b3958}
+.section-title{font-size:1rem;font-weight:850;margin:4px 0 12px}.section-title span{color:var(--muted);font-size:.78rem;font-weight:500;margin-left:7px}.session-tag{display:inline-block;padding:5px 9px;border-radius:9px;background:#151f36;color:#b9c5dc;font-size:.7rem;margin-right:5px;border:1px solid #2b3958}
 .top-telemetry{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0}.telemetry{background:rgba(8,25,32,.88);border:1px solid #1c3c45;border-radius:15px;padding:10px 13px;position:relative;overflow:hidden}.telemetry:after{content:"";position:absolute;top:0;bottom:0;width:80px;background:linear-gradient(90deg,transparent,rgba(53,224,194,.10),transparent);animation:sweep 3s linear infinite}.telemetry .k{font-size:.61rem;color:#7786a0;text-transform:uppercase;letter-spacing:.11em}.telemetry .v{font-size:1.02rem;font-weight:850;margin-top:2px}.telemetry .s{font-size:.67rem;color:#93a0b6;margin-top:2px}.live-text{color:var(--mint)}.standby-text{color:#9aa7ba}.safe-text{color:var(--mint)}.alert-text{color:var(--rose)}@keyframes sweep{from{left:-100px}to{left:100%}}
 .monitor-shell{border:1px solid #293753;border-radius:21px;background:linear-gradient(145deg,#0a101d,#0d1525);padding:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 20px 60px rgba(0,0,0,.20)}
 .monitor-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:9px}.monitor-head .title{font-size:1.05rem;font-weight:850}.monitor-head .meta{font-size:.71rem;color:#7786a0;margin-top:2px}
@@ -64,25 +50,19 @@ section[data-testid="stSidebar"]{background:linear-gradient(180deg,#0a0f1d,#080c
 .alert-dot,.safe-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}.alert-dot{background:var(--rose);box-shadow:0 0 0 0 rgba(255,102,133,.5);animation:pulse 1s infinite}.safe-dot{background:var(--mint);box-shadow:0 0 0 0 rgba(78,225,181,.5);animation:pulse 1.7s infinite}
 .stButton>button{border-radius:12px;border:1px solid #2b3a59;background:linear-gradient(180deg,#112a31,#0c2027);color:#f4f7ff;font-weight:800;min-height:43px;transition:.18s}.stButton>button:hover{border-color:var(--teal);background:linear-gradient(180deg,#123039,#0d252d);transform:translateY(-1px)}
 .stDownloadButton>button{border-radius:12px!important;border:1px solid #2b3a59!important;background:#111a2d!important;color:#f4f7ff!important}
-
-/* Selectbox Dark Theme Fix */
-div[data-baseweb="select"] > div {
-  background-color: #0b2027 !important;
-  border-color: #28505a !important;
-  color: #f5f7ff !important;
-  border-radius: 11px !important;
-}
-div[data-baseweb="select"] span {
-  color: #f5f7ff !important;
-}
-div[data-baseweb="select"] svg {
-  fill: #8ea9ad !important;
-}
-
-.stTextInput input, .stTextArea textarea{background:#0b2027!important;border-color:#28505a!important;color:#f5f7ff!important;border-radius:11px!important}
+div[data-baseweb="select"]>div, .stTextInput input, .stTextArea textarea{background:#0b2027!important;border-color:#28505a!important;color:#f5f7ff!important;border-radius:11px!important}
 [data-testid="stMetric"]{background:transparent}
+button[data-baseweb="tab"]{color:#8ea9ad!important;font-weight:800!important}
+button[data-baseweb="tab"][aria-selected="true"]{color:#67e8d0!important;border-bottom-color:#35e0c2!important}
+/* Single dark clinical mode */
 html,body,[data-testid="stAppViewContainer"],[data-testid="stHeader"]{background:#071218!important;color:var(--text)!important}
 footer{visibility:hidden}
+[data-testid="stHeader"]{display:none!important;height:0!important;min-height:0!important}
+[data-testid="stToolbar"]{display:none!important}
+#MainMenu{display:none!important}
+.stAppDeployButton{display:none!important}
+
+/* True single dark mode: uploader and native controls */
 section[data-testid="stFileUploaderDropzone"]{background:#0b2027!important;border:1px solid #28505a!important;border-radius:12px!important}
 section[data-testid="stFileUploaderDropzone"] *{color:#dff8f5!important}
 section[data-testid="stFileUploaderDropzone"] svg{fill:#67e8d0!important;color:#67e8d0!important}
@@ -91,58 +71,26 @@ section[data-testid="stFileUploaderDropzone"] button:hover{background:#153b44!im
 [data-testid="stFileUploader"] small{color:#8ea9ad!important}
 [data-testid="stFileUploader"] label{color:#dff8f5!important}
 .stFileUploader{color:#dff8f5!important}
+/* Compact full-width current EEG trace with no artificial vertical gap */
 .live-current-trace{width:100%!important;margin-top:0!important;padding-top:0!important;min-height:0!important}
 .live-current-trace .stPlotlyChart{margin-top:0!important;margin-bottom:0!important}
 
+/* Profile / operator card */
+.profile-card{display:flex;align-items:center;gap:12px;padding:12px 10px 14px;margin-bottom:14px;border-bottom:1px solid #1e3440}
+.profile-avatar{width:58px;height:58px;border-radius:16px;object-fit:cover;border:1px solid #2d5660;box-shadow:0 8px 24px rgba(0,0,0,.25);background:#102a31}
+.profile-name{font-weight:850;color:#f2fbfa;font-size:.9rem}.profile-role{font-size:.68rem;color:#8ea9ad;margin-top:2px}
+.model-card{padding:17px;border:1px solid #244a54;border-radius:18px;background:linear-gradient(145deg,#0d252d,#081920);box-shadow:0 12px 30px rgba(0,0,0,.16);height:100%}
+.model-card.selected{border-color:#35e0c2;box-shadow:0 0 0 1px rgba(53,224,194,.12),0 14px 34px rgba(0,0,0,.22)}
+.model-card-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:13px}.model-name{font-size:1rem;font-weight:900;color:#f2fbfa}.model-badge{font-size:.62rem;padding:4px 7px;border-radius:999px;color:#76edd9;background:rgba(53,224,194,.08);border:1px solid rgba(53,224,194,.25)}
+.model-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.model-metric{padding:9px 10px;border-radius:11px;background:#091a21;border:1px solid #193840}.model-metric .v{font-size:1rem;font-weight:900}.model-metric .l{font-size:.59rem;text-transform:uppercase;letter-spacing:.08em;color:#7f9ca1;margin-top:2px}
+.comparison-note{padding:12px 14px;border:1px solid #23464f;border-radius:13px;background:rgba(53,224,194,.045);color:#9fb6b9;font-size:.74rem;margin-top:12px}
+/* Consistent breathing room between UI blocks */
 .stMarkdown,.stButton,.stDownloadButton,.stFileUploader,.stSelectbox,.stTextInput,.stTextArea,.stNumberInput,.stDataFrame,.stPlotlyChart,.stAlert,.stTabs,.stSlider,.stRadio,.stCheckbox{margin-bottom:14px!important}
 [data-testid="stVerticalBlock"] > div{margin-bottom:6px}
 .card,.monitor-shell,.upload-shell,.analytics-hero,.analytics-grid,.top-telemetry,.alert-banner,.safe-banner{margin-bottom:18px!important}
 
+
 .analytics-hero{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;padding:18px 20px;border:1px solid #24505a;border-radius:20px;background:linear-gradient(135deg,rgba(17,48,57,.92),rgba(8,24,30,.98));margin-bottom:14px}.analytics-hero h2{margin:0;font-size:1.45rem;letter-spacing:-.02em}.analytics-hero p{margin:5px 0 0;color:#9bb5b9;font-size:.8rem}.analytics-badge{padding:7px 11px;border-radius:999px;background:rgba(53,224,194,.10);border:1px solid rgba(53,224,194,.28);color:#75f0d5;font-size:.7rem;font-weight:800;white-space:nowrap}.analytics-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0 16px}.analytics-stat{padding:14px;border-radius:16px;background:linear-gradient(145deg,#0d252d,#091a21);border:1px solid #21454e}.analytics-stat .n{font-size:1.55rem;font-weight:900}.analytics-stat .l{font-size:.66rem;text-transform:uppercase;letter-spacing:.11em;color:#7f9ca1;margin-top:3px}.analytics-stat .s{font-size:.72rem;color:#9bb0b4;margin-top:5px}.upload-shell{padding:18px;border:1px solid #24505a;border-radius:20px;background:linear-gradient(145deg,rgba(13,35,43,.96),rgba(7,20,26,.99));box-shadow:0 14px 40px rgba(0,0,0,.16);margin:8px 0 14px}.upload-title{font-size:1.08rem;font-weight:900}.upload-sub{font-size:.76rem;color:#8fa9ad;margin-top:3px}.mini-chip{display:inline-block;padding:4px 8px;border-radius:8px;background:#103039;border:1px solid #24535d;color:#9cefe1;font-size:.67rem;margin-right:5px}.analytics-note{padding:10px 13px;border-left:3px solid var(--teal);background:rgba(53,224,194,.055);border-radius:8px;color:#9fb6b9;font-size:.75rem}
-
-/* Dark Mode HTML Table Styling */
-.metrics-card {
-  background: linear-gradient(145deg, rgba(13,31,38,.97), rgba(7,19,25,.99));
-  border: 1px solid #21414a;
-  border-radius: 14px;
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-  margin-bottom: 16px;
-  padding: 4px;
-}
-.metrics-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-family: system-ui, -apple-system, sans-serif;
-  text-align: left;
-}
-.metrics-table th {
-  color: #8ea9ad;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  padding: 12px 16px;
-  border-bottom: 1px solid #21414a;
-  background-color: rgba(16, 38, 45, 0.4);
-}
-.metrics-table td {
-  color: #dff8f5;
-  font-size: 0.875rem;
-  padding: 13px 16px;
-  border-bottom: 1px solid #173239;
-  transition: background-color 0.15s ease;
-}
-.metrics-table tbody tr:last-child td {
-  border-bottom: none;
-}
-.metrics-table tbody tr:hover td {
-  background-color: rgba(53, 224, 194, 0.06);
-}
-.metrics-table .model-name {
-  color: #35e0c2;
-  font-weight: 700;
-}
-
 @media(max-width:1100px){.analytics-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:900px){.hero h1{font-size:1.8rem}.top-telemetry{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
@@ -213,7 +161,13 @@ if model is None or scaler is None or trained_threshold is None:
     st.stop()
 
 
-# Sidebar
+# Sidebar — load the GitHub account avatar directly; no local/manual image is required.
+GITHUB_USERNAME = os.getenv("GITHUB_USERNAME", "qadees321")
+GITHUB_AVATAR_URL = f"https://github.com/{GITHUB_USERNAME}.png"
+st.sidebar.markdown(
+    f'''<div class="profile-card"><img class="profile-avatar" src="{GITHUB_AVATAR_URL}" alt="GitHub profile image"/><div><div class="profile-name">Realtime Seizure Monitoring</div><div class="profile-role">EEG Research Control Room</div></div></div>''',
+    unsafe_allow_html=True,
+)
 st.sidebar.markdown("## 🏥 Control Room")
 st.sidebar.caption("Realtime Seizure Monitoring")
 patient_id = st.sidebar.text_input("Patient / Case ID", value=st.session_state.patient_id)
@@ -365,6 +319,11 @@ def parse_single():
 
 @st.cache_data(ttl=3600, show_spinner=False)
 def load_replay_dataset():
+    """Load the same 11,500-row EEG dataset used by the training notebook.
+
+    Prefer a local copy in data/ for deployment stability; otherwise use the
+    public GitHub mirror referenced by the notebook. Only X1-X178 and y are kept.
+    """
     if LOCAL_DATA_PATH.exists():
         df = pd.read_csv(LOCAL_DATA_PATH)
     else:
@@ -448,6 +407,7 @@ with c4:
 
 @st.fragment(run_every="700ms")
 def live_command_center():
+    # Actual repeated model inference while monitoring is active.
     if st.session_state.monitoring:
         tick = st.session_state.tick
         if source in ("Real seizure replay", "Real non-seizure replay"):
@@ -556,6 +516,7 @@ def live_command_center():
         st.plotly_chart(gauge, use_container_width=True, config={"displaylogo": False})
         st.markdown(f'<div class="card"><span class="session-tag">{st.session_state.patient_id}</span><span class="session-tag">{source}</span><p class="small-muted" style="margin:10px 0 0">{st.session_state.session_note}</p></div>', unsafe_allow_html=True)
 
+    # Full-width current-window trace: keep the original compact height, widen horizontally.
     if st.session_state.last_signal is not None:
         eeg = np.asarray(st.session_state.last_signal, dtype=float)
         ex = np.arange(1, len(eeg) + 1)
@@ -591,7 +552,7 @@ def live_command_center():
 
 live_command_center()
 
-# Analytics section
+# Analytics remains outside the live fragment so it does not redraw every 700 ms.
 with st.expander("📊 Model analytics", expanded=False):
     results_df = pd.DataFrame(meta.get("results_df", [])) if isinstance(meta, dict) and meta.get("results_df") is not None else pd.DataFrame()
     validation_df = pd.DataFrame(meta.get("validation_results_df", [])) if isinstance(meta, dict) and meta.get("validation_results_df") is not None else pd.DataFrame()
@@ -609,42 +570,45 @@ with st.expander("📊 Model analytics", expanded=False):
 
     at1, at2, at3 = st.tabs(["🏆 Model comparison", "🧪 Diagnostics", "🧬 Feature signals"])
     with at1:
+        st.markdown('<div class="section-title">Model comparison <span>all available validation metrics</span></div>', unsafe_allow_html=True)
         if not results_df.empty:
             display_df = results_df.copy()
-            
-            headers = [str(c).replace("_", " ").title() for c in display_df.columns]
-            header_html = "".join([f"<th>{h}</th>" for h in headers])
-            
-            rows_html = ""
-            for _, row in display_df.iterrows():
-                row_cells = ""
-                for col in display_df.columns:
-                    val = row[col]
-                    col_lower = str(col).lower()
-                    if col_lower in {"model", "name", "model_name"}:
-                        row_cells += f'<td class="model-name">{val}</td>'
-                    elif isinstance(val, (int, float, np.number)):
-                        row_cells += f'<td>{val:.3f}</td>'
-                    else:
-                        row_cells += f'<td>{val}</td>'
-                rows_html += f"<tr>{row_cells}</tr>"
-
-            table_html = f"""
-            <div class="metrics-card">
-              <table class="metrics-table">
-                <thead>
-                  <tr>{header_html}</tr>
-                </thead>
-                <tbody>
-                  {rows_html}
-                </tbody>
-              </table>
-            </div>
-            """
-            st.markdown(table_html, unsafe_allow_html=True)
+            model_col = next((c for c in display_df.columns if str(c).lower() in {"model","name","model_name"}), None)
+            metric_names = ["accuracy","precision","recall","f1","roc_auc","roc-auc","auc"]
+            metric_cols = [c for c in display_df.columns if str(c).lower() in metric_names]
+            if model_col is not None and metric_cols:
+                cards = st.columns(min(3, max(1, len(display_df))))
+                for i, (_, row) in enumerate(display_df.iterrows()):
+                    col = cards[i % len(cards)]
+                    model_name = str(row[model_col])
+                    is_selected = model_name == str(trained_model_name)
+                    badge = "DEPLOYED" if is_selected else "VALIDATION"
+                    metrics_html = ""
+                    for mc in metric_cols:
+                        val = pd.to_numeric(row[mc], errors="coerce")
+                        if pd.notna(val):
+                            metrics_html += f'<div class="model-metric"><div class="v">{float(val):.3f}</div><div class="l">{str(mc).replace("_"," ").upper()}</div></div>'
+                    cls = "model-card selected" if is_selected else "model-card"
+                    col.markdown(f'<div class="{cls}"><div class="model-card-head"><div class="model-name">{model_name}</div><div class="model-badge">{badge}</div></div><div class="model-metrics">{metrics_html}</div></div>', unsafe_allow_html=True)
+                long_rows=[]
+                for _, row in display_df.iterrows():
+                    for mc in metric_cols:
+                        val=pd.to_numeric(row[mc],errors="coerce")
+                        if pd.notna(val):
+                            long_rows.append({"Model":str(row[model_col]),"Metric":str(mc).replace("_"," ").upper(),"Value":float(val)})
+                if long_rows:
+                    plot_df=pd.DataFrame(long_rows)
+                    fig=go.Figure()
+                    for metric in plot_df["Metric"].unique():
+                        part=plot_df[plot_df["Metric"]==metric]
+                        fig.add_trace(go.Bar(x=part["Model"],y=part["Value"],name=metric))
+                    fig.update_layout(template="plotly_dark",barmode="group",height=390,yaxis=dict(title="Score",range=[0,1.05],gridcolor="#17383f"),xaxis=dict(title="Model"),margin=dict(l=10,r=10,t=35,b=10),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="#071b22",legend=dict(orientation="h",y=1.08,x=0))
+                    st.plotly_chart(fig,use_container_width=True,config={"displaylogo":False})
+                st.markdown('<div class="comparison-note">The cards and grouped chart show the available validation metrics side by side. The deployed model is marked <b>DEPLOYED</b>; no single metric is selected or used as an arbitrary comparison control.</div>', unsafe_allow_html=True)
+            else:
+                st.dataframe(display_df,use_container_width=True,hide_index=True)
         else:
             st.info("Model comparison metadata is not packaged yet. Run the deployment export/retraining step to populate it.")
-        st.markdown('<div class="analytics-note">Accuracy alone can hide class-imbalance effects. Use recall, precision, F1, ROC-AUC, the confusion matrix, and the validation-selected threshold together when reviewing this research model.</div>', unsafe_allow_html=True)
 
     with at2:
         d1,d2=st.columns(2)
