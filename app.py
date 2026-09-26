@@ -26,6 +26,22 @@ DATA_DIR = ROOT / "data"
 LOCAL_DATA_PATH = DATA_DIR / "epileptic_seizure_data.csv"
 DATA_URL = "https://raw.githubusercontent.com/Jreevo/Epileptic-Seizure-Binary-Classification/master/epilepsy.csv"
 
+# Detect the viewer's active Streamlit theme so the existing UI can keep the
+# same layout/design while switching colors and chart styling for light mode.
+try:
+    ACTIVE_THEME = st.context.theme.type
+except Exception:
+    ACTIVE_THEME = "dark"
+
+IS_LIGHT_THEME = str(ACTIVE_THEME).lower() == "light"
+PLOT_TEMPLATE = "plotly_white" if IS_LIGHT_THEME else "plotly_dark"
+PLOT_BG = "#f6fafb" if IS_LIGHT_THEME else "#071b22"
+PLOT_GRID = "#d5e2e6" if IS_LIGHT_THEME else "#17383f"
+PLOT_FONT = "#17343d" if IS_LIGHT_THEME else "#dff8f5"
+PLOT_MUTED = "#607983" if IS_LIGHT_THEME else "#7891a1"
+PLOT_ZERO = "#9aadb3" if IS_LIGHT_THEME else "#6b858b"
+CM_LOW = "#e7f4f4" if IS_LIGHT_THEME else "#102d35"
+
 st.markdown(
     """
 <style>
@@ -90,10 +106,52 @@ section[data-testid="stFileUploaderDropzone"] button:hover{background:#153b44!im
 .analytics-hero{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;padding:18px 20px;border:1px solid #24505a;border-radius:20px;background:linear-gradient(135deg,rgba(17,48,57,.92),rgba(8,24,30,.98));margin-bottom:14px}.analytics-hero h2{margin:0;font-size:1.45rem;letter-spacing:-.02em}.analytics-hero p{margin:5px 0 0;color:#9bb5b9;font-size:.8rem}.analytics-badge{padding:7px 11px;border-radius:999px;background:rgba(53,224,194,.10);border:1px solid rgba(53,224,194,.28);color:#75f0d5;font-size:.7rem;font-weight:800;white-space:nowrap}.analytics-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0 16px}.analytics-stat{padding:14px;border-radius:16px;background:linear-gradient(145deg,#0d252d,#091a21);border:1px solid #21454e}.analytics-stat .n{font-size:1.55rem;font-weight:900}.analytics-stat .l{font-size:.66rem;text-transform:uppercase;letter-spacing:.11em;color:#7f9ca1;margin-top:3px}.analytics-stat .s{font-size:.72rem;color:#9bb0b4;margin-top:5px}.upload-shell{padding:18px;border:1px solid #24505a;border-radius:20px;background:linear-gradient(145deg,rgba(13,35,43,.96),rgba(7,20,26,.99));box-shadow:0 14px 40px rgba(0,0,0,.16);margin:8px 0 14px}.upload-title{font-size:1.08rem;font-weight:900}.upload-sub{font-size:.76rem;color:#8fa9ad;margin-top:3px}.mini-chip{display:inline-block;padding:4px 8px;border-radius:8px;background:#103039;border:1px solid #24535d;color:#9cefe1;font-size:.67rem;margin-right:5px}.analytics-note{padding:10px 13px;border-left:3px solid var(--teal);background:rgba(53,224,194,.055);border-radius:8px;color:#9fb6b9;font-size:.75rem}
 @media(max-width:1100px){.analytics-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:900px){.hero h1{font-size:1.8rem}.top-telemetry{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+
 </style>
 """,
     unsafe_allow_html=True,
 )
+
+if IS_LIGHT_THEME:
+    st.markdown("""<style>/* Light-mode companion styling: same UI/layout, light surfaces and readable controls. */
+section[data-testid="stSidebar"]{background:linear-gradient(180deg,#f7fbfc,#eef5f7)!important;border-right:1px solid #cbdde2!important}
+html,body,[data-testid="stAppViewContainer"]{background:#f5f9fa!important;color:#17343d!important}
+[data-testid="stHeader"]{background:#f5f9fa!important;color:#17343d!important}
+.hero{border-color:#c8dce2!important;background:linear-gradient(135deg,rgba(255,255,255,.98),rgba(239,247,249,.98))!important;box-shadow:0 22px 70px rgba(36,76,88,.10)!important}
+.hero h1{background:linear-gradient(90deg,#17343d,var(--cyan),#079b87)!important;-webkit-background-clip:text!important;background-clip:text!important}
+.hero p{color:#58717b!important}
+.live-pill{border-color:#b8d0d7!important;background:#edf6f7!important;color:#17343d!important}
+.card{background:linear-gradient(145deg,#ffffff,#f1f7f8)!important;border-color:#c7dce1!important;box-shadow:0 10px 35px rgba(36,76,88,.08)!important}
+.sub{color:#607983!important}
+.session-tag{background:#e9f2f4!important;color:#3f606a!important;border-color:#c1d6dc!important}
+.top-telemetry .telemetry{background:rgba(255,255,255,.88)!important;border-color:#c7dce1!important}
+.telemetry .k{color:#607983!important}.telemetry .s{color:#6b828b!important}.standby-text{color:#607983!important}
+.monitor-shell{border-color:#c7dce1!important;background:linear-gradient(145deg,#ffffff,#f0f6f8)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 20px 60px rgba(36,76,88,.10)!important}
+.monitor-head .meta{color:#607983!important}
+.stButton>button{border-color:#bfd4da!important;background:linear-gradient(180deg,#ffffff,#edf5f7)!important;color:#17343d!important}
+.stButton>button:hover{background:linear-gradient(180deg,#f4fbfc,#e5f2f4)!important}
+.stDownloadButton>button{border-color:#bfd4da!important;background:#ffffff!important;color:#17343d!important}
+div[data-baseweb="select"]>div,.stTextInput input,.stTextArea textarea{background:#ffffff!important;border-color:#bfd4da!important;color:#17343d!important}
+div[data-baseweb="select"] span{color:#17343d!important}div[data-baseweb="select"] svg{fill:#607983!important}
+button[data-baseweb="tab"]{color:#607983!important}button[data-baseweb="tab"][aria-selected="true"]{color:#087e71!important;border-bottom-color:#0aaf98!important}
+section[data-testid="stFileUploaderDropzone"]{background:#ffffff!important;border-color:#bfd4da!important}
+section[data-testid="stFileUploaderDropzone"] *{color:#365862!important}
+section[data-testid="stFileUploaderDropzone"] svg{fill:#0a9f8b!important;color:#0a9f8b!important}
+section[data-testid="stFileUploaderDropzone"] button{background:#edf6f7!important;color:#17343d!important;border-color:#abcbd3!important}
+section[data-testid="stFileUploaderDropzone"] button:hover{background:#e2f1f3!important;border-color:#0aaf98!important}
+[data-testid="stFileUploader"] small{color:#607983!important}[data-testid="stFileUploader"] label{color:#365862!important}.stFileUploader{color:#365862!important}
+.model-card{border-color:#bfd7dc!important;background:linear-gradient(145deg,#ffffff,#eef6f7)!important;box-shadow:0 12px 30px rgba(36,76,88,.08)!important}
+.model-card.selected{border-color:#0aaf98!important;box-shadow:0 0 0 1px rgba(10,175,152,.12),0 14px 34px rgba(36,76,88,.10)!important}
+.model-name{color:#17343d!important}.model-badge{color:#087e71!important;background:rgba(10,175,152,.08)!important;border-color:rgba(10,175,152,.25)!important}
+.model-metric{background:#f1f7f8!important;border-color:#c9dfe4!important}.model-metric .l{color:#607983!important}
+.comparison-note{border-color:#c5dde2!important;background:rgba(10,175,152,.055)!important;color:#58717b!important}
+.analytics-hero{border-color:#bfd7dc!important;background:linear-gradient(135deg,rgba(255,255,255,.98),rgba(238,247,248,.98))!important}.analytics-hero p{color:#607983!important}.analytics-badge{color:#087e71!important;background:rgba(10,175,152,.08)!important;border-color:rgba(10,175,152,.25)!important}
+.analytics-stat{background:linear-gradient(145deg,#ffffff,#eef6f7)!important;border-color:#bfd7dc!important}.analytics-stat .l{color:#607983!important}.analytics-stat .s{color:#6b828b!important}
+.upload-shell{border-color:#bfd7dc!important;background:linear-gradient(145deg,#ffffff,#eef6f7)!important;box-shadow:0 14px 40px rgba(36,76,88,.08)!important}.upload-sub{color:#607983!important}.mini-chip{background:#e5f2f4!important;border-color:#b9d3da!important;color:#087e71!important}.analytics-note{background:rgba(10,175,152,.055)!important;color:#58717b!important}
+.alert-banner{background:linear-gradient(90deg,rgba(255,102,133,.10),rgba(139,124,255,.055))!important}.safe-banner{background:linear-gradient(90deg,rgba(78,225,181,.08),rgba(79,215,255,.04))!important}
+
+</style>""", unsafe_allow_html=True)
 
 
 @st.cache_resource(show_spinner=False)
@@ -145,7 +203,7 @@ st.markdown(
   <div>
     <div class="kicker">CLINICAL RESEARCH • EEG ANALYTICS • LIVE MONITOR</div>
     <h1>Realtime Seizure Monitoring</h1>
-    <p>AI-Powered Hospital-style EEG command center for real EEG replay, live screening, event surveillance and session reporting.</p>
+    <p>Hospital-style EEG command center for real EEG replay, live screening, event surveillance and session reporting.</p>
   </div>
   <div class="live-pill"><span class="live-dot"></span> MONITOR READY</div>
 </div>
@@ -232,7 +290,7 @@ def get_csv_signal():
     with c3: st.metric("Selected window", f"{row+1:,}")
     with c4: st.metric("Signal RMS", f"{np.sqrt(np.mean(np.square(vals))):.3f}")
     fig = go.Figure(go.Scatter(x=np.arange(1,179), y=vals, mode="lines", line=dict(color="#35e0c2", width=2), fill="tozeroy", fillcolor="rgba(53,224,194,.055)"))
-    fig.update_layout(template="plotly_dark", height=260, margin=dict(l=5,r=5,t=18,b=5), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#071b22", xaxis=dict(title="Feature sample", gridcolor="#17383f"), yaxis=dict(title="Amplitude", gridcolor="#17383f"), showlegend=False)
+    fig.update_layout(template=PLOT_TEMPLATE, height=260, margin=dict(l=5,r=5,t=18,b=5), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor=PLOT_BG, xaxis=dict(title="Feature sample", gridcolor=PLOT_GRID), yaxis=dict(title="Amplitude", gridcolor=PLOT_GRID), showlegend=False)
     st.plotly_chart(fig, use_container_width=True, config={"displaylogo":False,"scrollZoom":False})
     st.markdown(f'<span class="mini-chip">CSV loaded</span><span class="mini-chip">178 features validated</span><span class="mini-chip">Window {row+1} ready</span>', unsafe_allow_html=True)
     return vals, f"CSV row {row + 1}/{len(df)}"
@@ -303,7 +361,7 @@ def parse_single():
     with c2: st.metric("Signal RMS", f"{np.sqrt(np.mean(np.square(vals))):.3f}")
     with c3: st.metric("Peak amplitude", f"{np.max(np.abs(vals)):.3f}")
     fig = go.Figure(go.Scatter(x=np.arange(1,179), y=vals, mode="lines", line=dict(color="#56d9ff", width=2), fill="tozeroy", fillcolor="rgba(86,217,255,.05)"))
-    fig.update_layout(template="plotly_dark", height=250, margin=dict(l=5,r=5,t=18,b=5), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#071b22", xaxis=dict(title="Feature index", gridcolor="#17383f"), yaxis=dict(title="Value", gridcolor="#17383f"), showlegend=False)
+    fig.update_layout(template=PLOT_TEMPLATE, height=250, margin=dict(l=5,r=5,t=18,b=5), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor=PLOT_BG, xaxis=dict(title="Feature index", gridcolor=PLOT_GRID), yaxis=dict(title="Value", gridcolor=PLOT_GRID), showlegend=False)
     st.plotly_chart(fig, use_container_width=True, config={"displaylogo":False,"scrollZoom":False})
     return vals, "Manual EEG window"
 
@@ -496,14 +554,14 @@ def live_command_center():
             x = np.arange(1, len(y) + 1)
             fig = go.Figure()
             fig.add_trace(go.Scatter(x=x, y=y, mode="lines", line=dict(color="#4fd7ff", width=2.3), fill="tozeroy", fillcolor="rgba(79,215,255,.045)", hovertemplate="Sample %{x}<br>Amplitude %{y:.4f}<extra></extra>"))
-            fig.update_layout(template="plotly_dark", height=400, margin=dict(l=5,r=5,t=8,b=5), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#06131b", xaxis=dict(title="Sample", gridcolor="#173040", zeroline=False), yaxis=dict(title="EEG amplitude", gridcolor="#173040", zeroline=False), showlegend=False)
+            fig.update_layout(template=PLOT_TEMPLATE, height=400, margin=dict(l=5,r=5,t=8,b=5), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor=PLOT_BG, xaxis=dict(title="Sample", gridcolor=PLOT_GRID, zeroline=False), yaxis=dict(title="EEG amplitude", gridcolor=PLOT_GRID, zeroline=False), showlegend=False)
             st.plotly_chart(fig, use_container_width=True, config={"displaylogo": False, "scrollZoom": False})
         else:
             st.info("Load an EEG source and start monitoring to populate the live waveform.")
     with right:
         st.markdown('<div class="section-title">Signal status <span>model output</span></div>', unsafe_allow_html=True)
         gauge = go.Figure(go.Indicator(mode="gauge+number", value=prob*100, number={"suffix":"%", "font":{"size":38}}, title={"text":"Seizure probability"}, gauge={"axis":{"range":[0,100]}, "bar":{"color":"#ff5d73" if pred else "#56df9b", "thickness":.28}, "steps":[{"range":[0,threshold*100],"color":"rgba(86,223,155,.10)"},{"range":[threshold*100,100],"color":"rgba(255,93,115,.10)"}], "threshold":{"line":{"color":"#ffc45c","width":4},"value":threshold*100}}))
-        gauge.update_layout(template="plotly_dark", height=270, margin=dict(l=10,r=10,t=25,b=5), paper_bgcolor="rgba(0,0,0,0)")
+        gauge.update_layout(template=PLOT_TEMPLATE, height=270, margin=dict(l=10,r=10,t=25,b=5), paper_bgcolor="rgba(0,0,0,0)")
         st.plotly_chart(gauge, use_container_width=True, config={"displaylogo": False})
         st.markdown(f'<div class="card"><span class="session-tag">{st.session_state.patient_id}</span><span class="session-tag">{source}</span><p class="small-muted" style="margin:10px 0 0">{st.session_state.session_note}</p></div>', unsafe_allow_html=True)
 
@@ -512,7 +570,7 @@ def live_command_center():
         eeg = np.asarray(st.session_state.last_signal, dtype=float)
         ex = np.arange(1, len(eeg) + 1)
         mini = go.Figure(go.Scatter(x=ex, y=eeg, mode="lines", line=dict(color="#4ee1b5", width=1.8), fill="tozeroy", fillcolor="rgba(78,225,181,.045)"))
-        mini.update_layout(template="plotly_dark", height=105, margin=dict(l=5,r=5,t=22,b=3), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="#05131b", title=dict(text="LIVE EEG TRACE · CURRENT WINDOW", x=0.01, xanchor="left", font=dict(size=10,color="#7891a1")), xaxis=dict(showgrid=False, showticklabels=False, zeroline=False), yaxis=dict(showgrid=False, showticklabels=False, zeroline=False), showlegend=False)
+        mini.update_layout(template=PLOT_TEMPLATE, height=105, margin=dict(l=5,r=5,t=22,b=3), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor=PLOT_BG, title=dict(text="LIVE EEG TRACE · CURRENT WINDOW", x=0.01, xanchor="left", font=dict(size=10,color=PLOT_MUTED)), xaxis=dict(showgrid=False, showticklabels=False, zeroline=False), yaxis=dict(showgrid=False, showticklabels=False, zeroline=False), showlegend=False)
         st.markdown('<div class="live-current-trace" style="width:100%;">', unsafe_allow_html=True)
         st.plotly_chart(mini, use_container_width=True, config={"displaylogo": False})
         st.markdown('</div>', unsafe_allow_html=True)
@@ -629,7 +687,7 @@ with st.expander("📊 Model analytics", expanded=False):
                     for metric in plot_df["Metric"].unique():
                         part=plot_df[plot_df["Metric"]==metric]
                         fig.add_trace(go.Bar(x=part["Model"],y=part["Value"],name=metric))
-                    fig.update_layout(template="plotly_dark",barmode="group",height=390,yaxis=dict(title="Score",range=[0,1.05],gridcolor="#17383f"),xaxis=dict(title="Model"),margin=dict(l=10,r=10,t=35,b=10),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="#071b22",legend=dict(orientation="h",y=1.08,x=0,font=dict(color="#dff8f5",size=11),bgcolor="rgba(0,0,0,0)"))
+                    fig.update_layout(template=PLOT_TEMPLATE,barmode="group",height=390,yaxis=dict(title="Score",range=[0,1.05],gridcolor=PLOT_GRID),xaxis=dict(title="Model"),margin=dict(l=10,r=10,t=35,b=10),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor=PLOT_BG,legend=dict(orientation="h",y=1.08,x=0,font=dict(color=PLOT_FONT,size=11),bgcolor="rgba(0,0,0,0)"))
                     st.plotly_chart(fig,use_container_width=True,config={"displaylogo":False})
                 st.markdown('<div class="comparison-note">The cards and grouped chart show the available validation metrics side by side. The deployed model is marked <b>DEPLOYED</b>; no single metric is selected or used as an arbitrary comparison control.</div>', unsafe_allow_html=True)
             else:
@@ -643,22 +701,22 @@ with st.expander("📊 Model analytics", expanded=False):
         with d1:
             st.markdown('<div class="section-title">Confusion matrix <span>held-out evaluation</span></div>',unsafe_allow_html=True)
             if cm is not None and cm.shape==(2,2):
-                fig=go.Figure(go.Heatmap(z=cm,x=["Predicted · Non-Seizure","Predicted · Seizure"],y=["Actual · Non-Seizure","Actual · Seizure"],colorscale=[[0,"#102d35"],[.5,"#167a78"],[1,"#35e0c2"]],text=cm,texttemplate="%{text}",textfont=dict(size=18),hovertemplate="%{y}<br>%{x}<br>Count: %{z}<extra></extra>"))
-                fig.update_layout(template="plotly_dark",height=350,margin=dict(l=10,r=10,t=20,b=10),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="#071b22")
+                fig=go.Figure(go.Heatmap(z=cm,x=["Predicted · Non-Seizure","Predicted · Seizure"],y=["Actual · Non-Seizure","Actual · Seizure"],colorscale=[[0,CM_LOW],[.5,"#167a78"],[1,"#35e0c2"]],text=cm,texttemplate="%{text}",textfont=dict(size=18),hovertemplate="%{y}<br>%{x}<br>Count: %{z}<extra></extra>"))
+                fig.update_layout(template=PLOT_TEMPLATE,height=350,margin=dict(l=10,r=10,t=20,b=10),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor=PLOT_BG)
                 st.plotly_chart(fig,use_container_width=True,config={"displaylogo":False})
             else: st.info("Confusion-matrix metadata is not available.")
         with d2:
             st.markdown('<div class="section-title">ROC curve <span>discrimination view</span></div>',unsafe_allow_html=True)
             fpr=meta.get("fpr") if isinstance(meta,dict) else None; tpr=meta.get("tpr") if isinstance(meta,dict) else None
             if fpr is not None and tpr is not None:
-                fig=go.Figure(); fig.add_trace(go.Scatter(x=fpr,y=tpr,mode="lines",line=dict(color="#56d9ff",width=3),name=f"AUC {roc_auc:.3f}")); fig.add_trace(go.Scatter(x=[0,1],y=[0,1],mode="lines",line=dict(color="#6b858b",dash="dash"),showlegend=False))
-                fig.update_layout(template="plotly_dark",height=350,xaxis_title="False positive rate",yaxis_title="True positive rate",margin=dict(l=10,r=10,t=20,b=10),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="#071b22",legend=dict(orientation="h"))
+                fig=go.Figure(); fig.add_trace(go.Scatter(x=fpr,y=tpr,mode="lines",line=dict(color="#56d9ff",width=3),name=f"AUC {roc_auc:.3f}")); fig.add_trace(go.Scatter(x=[0,1],y=[0,1],mode="lines",line=dict(color=PLOT_ZERO,dash="dash"),showlegend=False))
+                fig.update_layout(template=PLOT_TEMPLATE,height=350,xaxis_title="False positive rate",yaxis_title="True positive rate",margin=dict(l=10,r=10,t=20,b=10),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor=PLOT_BG,legend=dict(orientation="h"))
                 st.plotly_chart(fig,use_container_width=True,config={"displaylogo":False})
             else: st.info("ROC metadata is not available.")
         probs=meta.get("best_proba") if isinstance(meta,dict) else None
         if probs is not None:
             st.markdown('<div class="section-title">Prediction probability distribution <span>held-out windows</span></div>',unsafe_allow_html=True)
-            fig=go.Figure(go.Histogram(x=np.asarray(probs),nbinsx=35,marker_color="#9b8cff",opacity=.85)); fig.update_layout(template="plotly_dark",height=300,xaxis_title="Seizure probability",yaxis_title="Window count",margin=dict(l=10,r=10,t=20,b=10),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="#071b22")
+            fig=go.Figure(go.Histogram(x=np.asarray(probs),nbinsx=35,marker_color="#9b8cff",opacity=.85)); fig.update_layout(template=PLOT_TEMPLATE,height=300,xaxis_title="Seizure probability",yaxis_title="Window count",margin=dict(l=10,r=10,t=20,b=10),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor=PLOT_BG)
             st.plotly_chart(fig,use_container_width=True,config={"displaylogo":False})
         if not validation_df.empty:
             validation_display = validation_df.copy()
@@ -678,7 +736,7 @@ with st.expander("📊 Model analytics", expanded=False):
         if imp is not None:
             imp=np.asarray(imp); idx=np.argsort(imp)[::-1][:20]
             fig=go.Figure(go.Bar(x=imp[idx][::-1],y=[f"X{i+1}" for i in idx][::-1],orientation="h",marker_color="#ffca6b",text=[f"{v:.4f}" for v in imp[idx][::-1]],textposition="outside"))
-            fig.update_layout(template="plotly_dark",height=560,xaxis_title="Importance",yaxis_title="EEG feature",margin=dict(l=10,r=70,t=20,b=10),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="#071b22")
+            fig.update_layout(template=PLOT_TEMPLATE,height=560,xaxis_title="Importance",yaxis_title="EEG feature",margin=dict(l=10,r=70,t=20,b=10),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor=PLOT_BG)
             st.plotly_chart(fig,use_container_width=True,config={"displaylogo":False})
         else: st.info("Feature importance is available when the selected model exposes feature_importances_.")
         st.markdown('<div class="analytics-note">Feature importance is model-specific. It describes contribution within the trained estimator and should not be interpreted as a clinical biomarker by itself.</div>',unsafe_allow_html=True)
