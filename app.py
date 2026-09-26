@@ -53,15 +53,15 @@ div[data-baseweb="select"]>div, .stTextInput input, .stTextArea textarea{backgro
 [data-testid="stMetric"]{background:transparent}
 button[data-baseweb="tab"]{color:#8ea9ad!important;font-weight:800!important}
 button[data-baseweb="tab"][aria-selected="true"]{color:#67e8d0!important;border-bottom-color:#35e0c2!important}
-/* Single dark clinical mode */
-html,body,[data-testid="stAppViewContainer"],[data-testid="stHeader"]{background:#071218!important;color:var(--text)!important}
+/* Single dark clinical mode — keep Streamlit navigation/header controls visible */
+html,body,[data-testid="stAppViewContainer"]{background:#071218!important;color:var(--text)!important}
 footer{visibility:hidden}
-[data-testid="stHeader"]{background:transparent!important;height:2.5rem!important;min-height:2.5rem!important}
+[data-testid="stHeader"]{background:#071218!important;color:var(--text)!important;min-height:2.5rem!important}
+[data-testid="stToolbar"]{display:flex!important;visibility:visible!important;opacity:1!important}
+#MainMenu{display:block!important;visibility:visible!important}
+.stAppDeployButton{display:flex!important;visibility:visible!important;opacity:1!important}
 /* Keep Streamlit sidebar controls available so the sidebar can be closed and reopened. */
 [data-testid="stSidebarCollapseButton"], [data-testid="stSidebarCollapsedControl"]{display:flex!important;visibility:visible!important;opacity:1!important}
-[data-testid="stToolbar"]{display:none!important}
-#MainMenu{display:none!important}
-.stAppDeployButton{display:none!important}
 
 /* True single dark mode: uploader and native controls */
 section[data-testid="stFileUploaderDropzone"]{background:#0b2027!important;border:1px solid #28505a!important;border-radius:12px!important}
