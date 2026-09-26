@@ -145,7 +145,7 @@ st.markdown(
   <div>
     <div class="kicker">CLINICAL RESEARCH • EEG ANALYTICS • LIVE MONITOR</div>
     <h1>Realtime Seizure Monitoring</h1>
-    <p>Hospital-style EEG command center for real EEG replay, live screening, event surveillance and session reporting.</p>
+    <p>AI-Powered Hospital-style EEG command center for real EEG replay, live screening, event surveillance and session reporting.</p>
   </div>
   <div class="live-pill"><span class="live-dot"></span> MONITOR READY</div>
 </div>
