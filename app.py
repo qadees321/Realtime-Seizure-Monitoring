@@ -29,11 +29,13 @@ DATA_URL = "https://raw.githubusercontent.com/Jreevo/Epileptic-Seizure-Binary-Cl
 # Detect the viewer's active Streamlit theme so the existing UI can keep the
 # same layout/design while switching colors and chart styling for light mode.
 try:
-    ACTIVE_THEME = st.context.theme.type
+    ACTIVE_THEME = str(st.context.theme.type).lower()
 except Exception:
     ACTIVE_THEME = "dark"
 
-IS_LIGHT_THEME = str(ACTIVE_THEME).lower() == "light"
+# Streamlit's dual theme config (.streamlit/config.toml) supplies the authoritative
+# light/dark presets. Keep dark as the safe fallback if theme context is unavailable.
+IS_LIGHT_THEME = ACTIVE_THEME == "light"
 PLOT_TEMPLATE = "plotly_white" if IS_LIGHT_THEME else "plotly_dark"
 PLOT_BG = "#f6fafb" if IS_LIGHT_THEME else "#071b22"
 PLOT_GRID = "#d5e2e6" if IS_LIGHT_THEME else "#17383f"
