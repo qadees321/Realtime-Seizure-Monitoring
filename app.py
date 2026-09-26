@@ -2,7 +2,6 @@ from pathlib import Path
 from datetime import datetime, timezone
 import json
 import io
-import os
 
 import joblib
 import numpy as np
@@ -57,7 +56,9 @@ button[data-baseweb="tab"][aria-selected="true"]{color:#67e8d0!important;border-
 /* Single dark clinical mode */
 html,body,[data-testid="stAppViewContainer"],[data-testid="stHeader"]{background:#071218!important;color:var(--text)!important}
 footer{visibility:hidden}
-[data-testid="stHeader"]{display:none!important;height:0!important;min-height:0!important}
+[data-testid="stHeader"]{background:transparent!important;height:2.5rem!important;min-height:2.5rem!important}
+/* Keep Streamlit sidebar controls available so the sidebar can be closed and reopened. */
+[data-testid="stSidebarCollapseButton"], [data-testid="stSidebarCollapsedControl"]{display:flex!important;visibility:visible!important;opacity:1!important}
 [data-testid="stToolbar"]{display:none!important}
 #MainMenu{display:none!important}
 .stAppDeployButton{display:none!important}
@@ -75,10 +76,6 @@ section[data-testid="stFileUploaderDropzone"] button:hover{background:#153b44!im
 .live-current-trace{width:100%!important;margin-top:0!important;padding-top:0!important;min-height:0!important}
 .live-current-trace .stPlotlyChart{margin-top:0!important;margin-bottom:0!important}
 
-/* Profile / operator card */
-.profile-card{display:flex;align-items:center;gap:12px;padding:12px 10px 14px;margin-bottom:14px;border-bottom:1px solid #1e3440}
-.profile-avatar{width:58px;height:58px;border-radius:16px;object-fit:cover;border:1px solid #2d5660;box-shadow:0 8px 24px rgba(0,0,0,.25);background:#102a31}
-.profile-name{font-weight:850;color:#f2fbfa;font-size:.9rem}.profile-role{font-size:.68rem;color:#8ea9ad;margin-top:2px}
 .model-card{padding:17px;border:1px solid #244a54;border-radius:18px;background:linear-gradient(145deg,#0d252d,#081920);box-shadow:0 12px 30px rgba(0,0,0,.16);height:100%}
 .model-card.selected{border-color:#35e0c2;box-shadow:0 0 0 1px rgba(53,224,194,.12),0 14px 34px rgba(0,0,0,.22)}
 .model-card-head{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:13px}.model-name{font-size:1rem;font-weight:900;color:#f2fbfa}.model-badge{font-size:.62rem;padding:4px 7px;border-radius:999px;color:#76edd9;background:rgba(53,224,194,.08);border:1px solid rgba(53,224,194,.25)}
@@ -161,13 +158,7 @@ if model is None or scaler is None or trained_threshold is None:
     st.stop()
 
 
-# Sidebar — load the GitHub account avatar directly; no local/manual image is required.
-GITHUB_USERNAME = os.getenv("GITHUB_USERNAME", "qadees321")
-GITHUB_AVATAR_URL = f"https://github.com/{GITHUB_USERNAME}.png"
-st.sidebar.markdown(
-    f'''<div class="profile-card"><img class="profile-avatar" src="{GITHUB_AVATAR_URL}" alt="GitHub profile image"/><div><div class="profile-name">Realtime Seizure Monitoring</div><div class="profile-role">EEG Research Control Room</div></div></div>''',
-    unsafe_allow_html=True,
-)
+# Sidebar
 st.sidebar.markdown("## 🏥 Control Room")
 st.sidebar.caption("Realtime Seizure Monitoring")
 patient_id = st.sidebar.text_input("Patient / Case ID", value=st.session_state.patient_id)
@@ -638,7 +629,7 @@ with st.expander("📊 Model analytics", expanded=False):
                     for metric in plot_df["Metric"].unique():
                         part=plot_df[plot_df["Metric"]==metric]
                         fig.add_trace(go.Bar(x=part["Model"],y=part["Value"],name=metric))
-                    fig.update_layout(template="plotly_dark",barmode="group",height=390,yaxis=dict(title="Score",range=[0,1.05],gridcolor="#17383f"),xaxis=dict(title="Model"),margin=dict(l=10,r=10,t=35,b=10),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="#071b22",legend=dict(orientation="h",y=1.08,x=0))
+                    fig.update_layout(template="plotly_dark",barmode="group",height=390,yaxis=dict(title="Score",range=[0,1.05],gridcolor="#17383f"),xaxis=dict(title="Model"),margin=dict(l=10,r=10,t=35,b=10),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="#071b22",legend=dict(orientation="h",y=1.08,x=0,font=dict(color="#dff8f5",size=11),bgcolor="rgba(0,0,0,0)"))
                     st.plotly_chart(fig,use_container_width=True,config={"displaylogo":False})
                 st.markdown('<div class="comparison-note">The cards and grouped chart show the available validation metrics side by side. The deployed model is marked <b>DEPLOYED</b>; no single metric is selected or used as an arbitrary comparison control.</div>', unsafe_allow_html=True)
             else:
